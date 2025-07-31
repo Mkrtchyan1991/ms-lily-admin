@@ -1,0 +1,38 @@
+@use 'sass:list';
+
+// prettier-ignore
+$colors: (
+  itemColor: (#838697, #707591),
+  itemSelectedColor: (#1e364f, #F3F6F9),
+  itemHoverColor: (#1e364f, #b8bcd0),
+
+
+  itemBg: (transparent, transparent),
+  itemSelectedBg: (#dfdfe9, #55a7ff16),
+  itemHoverBg: (#d5d5e3, #393959),
+  itemActiveBg: (#c3c3e2, #22223a),
+);
+
+/// Mixin to generate theme CSS custom properties based on a mode ('light' or 'dark')
+@mixin generate-theme($colors, $mode) {
+  $index: if($mode == 'light', 1, 2);
+
+  @each $key, $value in $colors {
+    //  @debug 'Key: #{$key} | Value: #{$value} | Type: #{type-of($value)}';
+
+    --color-#{$key}: #{list.nth($value, $index)};
+
+    @if $mode == 'light' {
+      --light-color-#{$key}: #{list.nth($value, 1)};
+      --dark-color-#{$key}: #{list.nth($value, 2)};
+    }
+  }
+}
+
+:root {
+  @include generate-theme($colors, 'light');
+}
+
+body[data-theme='dark'] {
+  @include generate-theme($colors, 'dark');
+}

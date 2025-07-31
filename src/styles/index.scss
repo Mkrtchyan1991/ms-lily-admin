@@ -1,0 +1,13 @@
+@use './helpers';
+@use './mixins';
+@use './typography';
+@use './variables';
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-900);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}

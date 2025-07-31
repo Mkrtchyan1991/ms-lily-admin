@@ -1,0 +1,22 @@
+.content {
+  height: 100%;
+  max-height: calc(100vh - 64px);
+  padding: 10px 2px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  .menu {
+    flex: 1;
+    border-inline-end: 0 !important;
+    display: flex;
+    flex-direction: column;
+  }
+  .bottom {
+    display: flex;
+    justify-content: flex-end;
+    .toggle-icon {
+      padding: 10px;
+    }
+  }
+}

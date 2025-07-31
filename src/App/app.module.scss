@@ -1,0 +1,18 @@
+.container {
+  height: 100vh;
+  backdrop-filter: blur(50px);
+
+  .wrapper {
+    .main {
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      overflow: auto;
+
+      .wrapper {
+        padding: 10px;
+        flex: 1;
+      }
+    }
+  }
+}
