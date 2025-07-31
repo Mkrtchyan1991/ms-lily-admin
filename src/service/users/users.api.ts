@@ -64,16 +64,4 @@ export const usersApi = {
 
   // DELETE /api/admin/users/{id} - Delete user
   deleteUser: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/users/${id}`),
-
-  // PATCH /api/admin/users/{id}/toggle-role
-  toggleRole: (id: number): Promise<ApiResponse<User>> => axios.patch(`/api/admin/users/${id}/toggle-role`),
-
-  // PATCH /api/admin/users/{id}/verify-email
-  verifyEmail: (id: number): Promise<ApiResponse<User>> => axios.patch(`/api/admin/users/${id}/verify-email`),
-
-  // PATCH /api/admin/users/{id}/toggle-suspension
-  toggleSuspension: (id: number): Promise<ApiResponse<User>> => axios.patch(`/api/admin/users/${id}/toggle-suspension`),
-
-  // GET /api/admin/users/stats/overview
-  getStatistics: (): Promise<ApiResponse<UserStatistics>> => axios.get('/api/admin/users/stats/overview'),
 };

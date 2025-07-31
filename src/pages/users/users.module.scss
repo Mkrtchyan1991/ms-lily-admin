@@ -1,2 +1,163 @@
 .container {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .title {
+    margin: 0;
+    color: #1f2937;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+}
+
+.filters {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  align-items: center;
+
+  .filterItem {
+    min-width: 200px;
+  }
+
+  .searchInput {
+    min-width: 300px;
+  }
+}
+
+.tableContainer {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+
+  .userTable {
+    .ant-table-thead > tr > th {
+      background: #f8fafc;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .ant-table-tbody > tr:hover > td {
+      background: #f8fafc;
+    }
+  }
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+  }
+
+  .details {
+    .name {
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0;
+    }
+
+    .email {
+      color: #6b7280;
+      font-size: 12px;
+      margin: 0;
+    }
+  }
+}
+
+.roleTag {
+  &.admin {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fcd34d;
+  }
+
+  &.user {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+  }
+}
+
+.statusTag {
+  &.verified {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+
+  &.unverified {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+
+  .ant-btn {
+    padding: 4px 8px;
+    height: auto;
+    font-size: 12px;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: #6b7280;
+
+  .emptyIcon {
+    font-size: 48px;
+    color: #d1d5db;
+    margin-bottom: 16px;
+  }
+
+  .emptyTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #374151;
+  }
+
+  .emptyDescription {
+    color: #6b7280;
+    margin-bottom: 24px;
+  }
 }
