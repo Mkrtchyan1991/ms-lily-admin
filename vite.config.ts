@@ -3,13 +3,7 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   base: '/', // important for correct routing on deploy
-  plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler', { target: '19' }]],
-      },
-    }),
-  ],
+  plugins: [react({ babel: { plugins: [['babel-plugin-react-compiler', { target: '19' }]] } })],
   resolve: {
     alias: { '@': '/src' },
   },
