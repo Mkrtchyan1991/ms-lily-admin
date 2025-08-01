@@ -7,38 +7,26 @@ import {
   CreateProductRequest,
   IProduct,
   PaginatedResponse,
+  ProductFilterParams,
   TagProps,
 } from '../service.types';
 
-export const productsApi = {
-  // Public product endpoints
-  getAllProducts: (params?: {
-    category?: string;
-    page?: number;
-    per_page?: number;
-  }): Promise<ApiResponse<PaginatedResponse<IProduct>>> => axios.get('/api/products/allProducts', { params }),
+// New interface for filter options response
+export interface FilterOptionsResponse {
+  categories: CategoryProps[];
+  brands: BrandProps[];
+  tags: TagProps[];
+}
 
+export const productsApi = {
   getProduct: (id: number): Promise<ApiResponse<IProduct>> => axios.get(`/api/products/${id}`),
 
-  // Filter endpoints
-  getCategories: (category?: string): Promise<ApiResponse<CategoryProps[]>> =>
-    axios.get('/api/products/categories', { params: { category } }),
+  getFilterOptions: (category?: string): Promise<ApiResponse<FilterOptionsResponse>> =>
+    axios.get('/api/products/filter-options', { params: { category } }),
 
-  getBrands: (category?: string): Promise<ApiResponse<BrandProps[]>> =>
-    axios.get('/api/products/brands', { params: { category } }),
-
-  getTags: (category?: string): Promise<ApiResponse<TagProps[]>> =>
-    axios.get('/api/products/tags', { params: { category } }),
-
-  // Filter products
-  filterByCategory: (categoryId: number, category?: string): Promise<ApiResponse<PaginatedResponse<IProduct>>> =>
-    axios.get('/api/products/filter/category', { params: { category_id: categoryId, category } }),
-
-  filterByBrand: (brandId: number, category?: string): Promise<ApiResponse<PaginatedResponse<IProduct>>> =>
-    axios.get('/api/products/filter/brand', { params: { brand: brandId, category } }),
-
-  filterByTag: (tagId: number, category?: string): Promise<ApiResponse<PaginatedResponse<IProduct>>> =>
-    axios.get('/api/products/filter/tag', { params: { tag_id: tagId, category } }),
+  // Enhanced getAllProducts to handle filtering
+  getAllProducts: (params: ProductFilterParams): Promise<ApiResponse<PaginatedResponse<IProduct>>> =>
+    axios.get('/api/products/allProducts', { params }),
 
   // Comments
   getProductComments: (productId: number): Promise<ApiResponse<PaginatedResponse<Comment>>> =>
@@ -54,9 +42,9 @@ export const productsApi = {
 
     getProduct: (id: number): Promise<ApiResponse<IProduct>> => axios.get(`/api/admin/products/${id}`),
 
-    createProduct: (data: CreateProductRequest): Promise<ApiResponse<IProduct>> =>
+    createProduct: (data: FormData): Promise<ApiResponse<IProduct>> =>
       axios.post('/api/admin/products', data, {
-        // headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data' },
       }),
 
     updateProduct: (id: number, data: FormData): Promise<ApiResponse<IProduct>> =>

@@ -160,3 +160,34 @@ export interface ShippingAddress {
   country: string;
   phone: string;
 }
+
+// Main filter parameters interface for getAllProducts
+export interface ProductFilterParams {
+  // Category & Brand filtering
+  category?: number;
+  brand?: number;
+
+  // Tag filtering
+  tag?: number; // Single tag ID
+  tags?: string; // Multiple tag IDs (comma-separated: "1,2,3")
+
+  // Price range filtering
+  price_min?: number;
+  price_max?: number;
+
+  // Product attributes
+  color?: string; // Partial match
+  size?: string; // Exact match
+
+  // Search & stock
+  search?: string; // Search in name and description
+  in_stock?: boolean; // Filter products with stock > 0
+
+  // Sorting options
+  sort_by?: 'name' | 'price' | 'created_at' | 'stock';
+  sort_order?: 'asc' | 'desc';
+
+  // Pagination
+  per_page?: number; // 1-50, default: 10
+  page?: number; // Current page number
+}

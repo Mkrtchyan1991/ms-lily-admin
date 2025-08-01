@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { productsApi } from '@/service/products/products.api';
-import { BrandProps, CategoryProps, IProduct } from '@/service/service.types';
+import { BrandProps, CategoryProps, IProduct, ProductFilterParams, TagProps } from '@/service/service.types';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { App, Button, Card, Col, Input, Row, Select, Table, Typography } from 'antd';
 
@@ -20,8 +20,10 @@ export const Products = () => {
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>();
+  const [selectedTag, setSelectedTag] = useState<string | undefined>();
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [brands, setBrands] = useState<BrandProps[]>([]);
+  const [tags, setTags] = useState<TagProps[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [pagination, setPagination] = useState({
     current: 1,
@@ -29,13 +31,13 @@ export const Products = () => {
     total: 0,
   });
 
-  // Fetch products from API
-  const fetchProducts = async (page = 1, pageSize = 10) => {
+  // Fetch products with optional filters
+  const fetchProducts = async (page = 1, pageSize = 10, filters?: ProductFilterParams) => {
     try {
-      const response = await productsApi.admin.getProducts({
-        page,
-        per_page: pageSize,
-      });
+      setLoading(true);
+
+      console.log(filters);
+      const response = await productsApi.getAllProducts({ page, per_page: pageSize, ...filters });
 
       if (response.data) {
         setProducts(response.data.data);
@@ -48,78 +50,33 @@ export const Products = () => {
     } catch (error) {
       console.error('Failed to fetch products:', error);
       message.error('Failed to load products');
-    }
-  };
-
-  // Fetch categories from API
-  const fetchCategories = async () => {
-    try {
-      const response = await productsApi.getCategories();
-      if (response.data) setCategories(response.data);
-    } catch (error) {
-      console.error('Failed to fetch categories:', error);
-    }
-  };
-
-  // Fetch brands from API
-  const fetchBrands = async () => {
-    try {
-      const response = await productsApi.getBrands();
-      if (response.data) setBrands(response.data);
-    } catch (error) {
-      console.error('Failed to fetch brands:', error);
-    }
-  };
-
-  // Filter products by category
-  const filterByCategory = async (categoryId: number) => {
-    try {
-      setLoading(true);
-      const response = await productsApi.filterByCategory(categoryId);
-      if (response.data) {
-        setProducts(response.data.data);
-        setPagination({
-          current: response.data.current_page,
-          pageSize: response.data.per_page,
-          total: response.data.total,
-        });
-      }
-    } catch (error) {
-      console.error('Failed to filter by category:', error);
-      message.error('Failed to filter products');
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter products by brand
-  const filterByBrand = async (brandId: number) => {
+  // Fetch filter options from the new consolidated endpoint
+  const fetchFilterOptions = async () => {
     try {
-      setLoading(true);
-      const response = await productsApi.filterByBrand(brandId);
+      const response = await productsApi.getFilterOptions();
       if (response.data) {
-        setProducts(response.data.data);
-        setPagination({
-          current: response.data.current_page,
-          pageSize: response.data.per_page,
-          total: response.data.total,
-        });
+        setCategories(response.data.categories);
+        setBrands(response.data.brands);
+        setTags(response.data.tags);
       }
     } catch (error) {
-      console.error('Failed to filter by brand:', error);
-      message.error('Failed to filter products');
-    } finally {
-      setLoading(false);
+      console.error('Failed to fetch filter options:', error);
+      message.error('Failed to load filter options');
     }
   };
 
-  // Initialize data on component mount - FIXED: Consolidated into single useEffect
+  // Initialize data on component mount
   useEffect(() => {
     const initializePageData = async () => {
       setLoading(true);
       try {
-        // Fetch all data concurrently to prevent duplicate calls
-        await Promise.all([fetchProducts(), fetchCategories(), fetchBrands()]);
+        // Fetch products and filter options concurrently
+        await Promise.all([fetchProducts(), fetchFilterOptions()]);
       } catch (error) {
         console.error('Failed to initialize page data:', error);
         message.error('Failed to load page data');
@@ -129,7 +86,7 @@ export const Products = () => {
     };
 
     initializePageData();
-  }, []); // Empty dependency array - only run once on mount
+  }, []);
 
   // Filter products based on search text (client-side filtering)
   const filteredProducts = products.filter((product) => {
@@ -162,131 +119,171 @@ export const Products = () => {
     // TODO: Implement view functionality
   };
 
+  // Updated filter handlers
   const handleCategoryChange = (value: string | undefined) => {
     setSelectedCategory(value);
-    if (value) {
-      const category = categories.find((cat) => cat.name === value);
-      if (category) {
-        filterByCategory(category.id);
-      }
-    } else {
-      fetchProducts();
-    }
+    const category = categories.find((cat) => cat.name === value);
+    const categoryId = category?.id;
+
+    // Reset other filters and fetch products
+    setSelectedBrand(undefined);
+    setSelectedTag(undefined);
+    fetchProducts(1, pagination.pageSize, { category: categoryId });
   };
 
   const handleBrandChange = (value: string | undefined) => {
     setSelectedBrand(value);
-    if (value) {
-      const brand = brands.find((b) => b.name === value);
-      if (brand) {
-        filterByBrand(brand.id);
-      }
-    } else {
-      fetchProducts();
-    }
+    const brand = brands.find((b) => b.name === value);
+    const brandId = brand?.id;
+
+    // Keep category filter but reset tag filter
+    const category = categories.find((cat) => cat.name === selectedCategory);
+    const categoryId = category?.id;
+
+    setSelectedTag(undefined);
+    fetchProducts(1, pagination.pageSize, { category: categoryId, brand: brandId });
   };
 
-  const handleTableChange = (pagination: any) => {
-    fetchProducts(pagination.current, pagination.pageSize);
+  const handleTagChange = (value: string | undefined) => {
+    setSelectedTag(value);
+    const tag = tags.find((t) => t.name === value);
+    const tagId = tag?.id;
+
+    // Keep existing filters
+    const category = categories.find((cat) => cat.name === selectedCategory);
+    const categoryId = category?.id;
+    const brand = brands.find((b) => b.name === selectedBrand);
+    const brandId = brand?.id;
+
+    fetchProducts(1, pagination.pageSize, { category: categoryId, brand: brandId, tag: tagId });
   };
 
-  const handleCreateProduct = () => {
-    setIsCreateModalOpen(true);
+  const handleClearFilters = () => {
+    setSelectedCategory(undefined);
+    setSelectedBrand(undefined);
+    setSelectedTag(undefined);
+    fetchProducts(1, pagination.pageSize);
   };
 
-  const handleCreateSuccess = () => {
-    fetchProducts(pagination.current, pagination.pageSize);
-    setIsCreateModalOpen(false);
-  };
+  const handleTableChange = (newPagination: any) => {
+    // Preserve current filters when changing pages
+    const category = categories.find((cat) => cat.name === selectedCategory);
+    const categoryId = category?.id;
+    const brand = brands.find((b) => b.name === selectedBrand);
+    const brandId = brand?.id;
+    const tag = tags.find((t) => t.name === selectedTag);
+    const tagId = tag?.id;
 
-  // Create columns with handler functions
-  const productsColumns = createProductsColumns({ handleEdit, handleDelete, handleView });
+    fetchProducts(newPagination.current, newPagination.pageSize, { category: categoryId, brand: brandId, tag: tagId });
+  };
 
   return (
-    <div className={styles.container}>
-      <Card>
-        <div style={{ marginBottom: '24px' }}>
-          <Row justify="space-between" align="middle" style={{ marginBottom: '16px' }}>
-            <Col>
-              <Title level={3} style={{ margin: 0 }}>
-                Products Management
-              </Title>
-            </Col>
-            <Col>
-              <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateProduct}>
-                Add New Product
-              </Button>
-            </Col>
-          </Row>
+    <div className={styles.productsContainer}>
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <Card>
+            <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
+              <Col>
+                <Title level={3}>Products Management</Title>
+              </Col>
+              <Col>
+                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateModalOpen(true)}>
+                  Add Product
+                </Button>
+              </Col>
+            </Row>
 
-          {/* Filters */}
-          <Row gutter={16} style={{ marginBottom: '16px' }}>
-            <Col xs={24} sm={12} md={8}>
-              <Search
-                placeholder="Search products..."
-                allowClear
-                enterButton={<SearchOutlined />}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-            </Col>
-            <Col xs={12} sm={6} md={4} lg={3}>
-              <Select
-                placeholder="Category"
-                allowClear
-                style={{ width: '100%' }}
-                value={selectedCategory}
-                onChange={handleCategoryChange}
-              >
-                {categories.map((category) => (
-                  <Option key={category.id} value={category.name}>
-                    {category.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-            <Col xs={12} sm={6} md={4} lg={3}>
-              <Select
-                placeholder="Brand"
-                allowClear
-                style={{ width: '100%' }}
-                value={selectedBrand}
-                onChange={handleBrandChange}
-              >
-                {brands.map((brand) => (
-                  <Option key={brand.id} value={brand.name}>
-                    {brand.name}
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-          </Row>
-        </div>
+            {/* Search and Filter Controls */}
+            <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
+              <Col xs={24} sm={12} md={6}>
+                <Search
+                  placeholder="Search products..."
+                  value={searchText}
+                  onChange={(e) => setSearchText(e.target.value)}
+                  prefix={<SearchOutlined />}
+                />
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Select Category"
+                  value={selectedCategory}
+                  onChange={handleCategoryChange}
+                  allowClear
+                  style={{ width: '100%' }}
+                >
+                  {categories.map((category) => (
+                    <Option key={category.id} value={category.name}>
+                      {category.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Select Brand"
+                  value={selectedBrand}
+                  onChange={handleBrandChange}
+                  allowClear
+                  style={{ width: '100%' }}
+                >
+                  {brands.map((brand) => (
+                    <Option key={brand.id} value={brand.name}>
+                      {brand.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Select
+                  placeholder="Select Tag"
+                  value={selectedTag}
+                  onChange={handleTagChange}
+                  allowClear
+                  style={{ width: '100%' }}
+                >
+                  {tags.map((tag) => (
+                    <Option key={tag.id} value={tag.name}>
+                      {tag.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Col>
+            </Row>
 
-        {/* Products Table */}
-        <Table
-          columns={productsColumns}
-          dataSource={filteredProducts}
-          loading={loading}
-          rowKey="id"
-          pagination={{
-            current: pagination.current,
-            pageSize: pagination.pageSize,
-            total: pagination.total,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} products`,
-          }}
-          onChange={handleTableChange}
-          scroll={{ x: 1200 }}
-        />
-      </Card>
+            {/* Clear Filters Button */}
+            {(selectedCategory || selectedBrand || selectedTag) && (
+              <Row style={{ marginBottom: 16 }}>
+                <Col>
+                  <Button onClick={handleClearFilters}>Clear All Filters</Button>
+                </Col>
+              </Row>
+            )}
 
-      {/* Create Product Modal */}
+            {/* Products Table */}
+            <Table
+              columns={createProductsColumns({ handleEdit, handleDelete, handleView })}
+              dataSource={filteredProducts}
+              loading={loading}
+              pagination={{
+                ...pagination,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+              }}
+              onChange={handleTableChange}
+              rowKey="id"
+            />
+          </Card>
+        </Col>
+      </Row>
+
       <ProductCreateModal
         open={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={handleCreateSuccess}
+        onSuccess={() => {
+          setIsCreateModalOpen(false);
+          fetchProducts(pagination.current, pagination.pageSize);
+        }}
       />
     </div>
   );
