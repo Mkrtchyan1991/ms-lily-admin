@@ -2,9 +2,12 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
+  base: '/', // important for correct routing on deploy
   plugins: [
     react({
-      babel: { plugins: [['babel-plugin-react-compiler', { target: '19' }]] },
+      babel: {
+        plugins: [['babel-plugin-react-compiler', { target: '19' }]],
+      },
     }),
   ],
   resolve: {

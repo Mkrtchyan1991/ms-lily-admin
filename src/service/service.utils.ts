@@ -6,5 +6,6 @@ export interface ApiError {
 
 export const catchErrorMessage = (error: unknown) => {
   const apiError = error as ApiError;
+  console.log(apiError.response?.data);
   return apiError.response?.data?.message || apiError.message;
 };
