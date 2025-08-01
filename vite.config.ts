@@ -10,7 +10,6 @@ export default defineConfig({
   resolve: {
     alias: { '@': '/src' },
   },
-  build: { outDir: 'build' },
   css: {
     modules: {
       localsConvention: 'dashes',
