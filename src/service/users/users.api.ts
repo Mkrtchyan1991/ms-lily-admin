@@ -1,67 +1,22 @@
-import axios from '@/configs/axios.config';
+import axios from 'axios';
 
-import { ApiResponse, PaginatedResponse, User } from '../service.types';
-
-export interface UserListParams {
-  search?: string;
-  role?: 'admin' | 'user';
-  status?: 'active' | 'suspended';
-  verified?: boolean;
-  page?: number;
-  per_page?: number;
-}
-
-export interface CreateUserRequest {
-  name: string;
-  last_name: string;
-  email: string;
-  mobile_number: string;
-  password: string;
-  password_confirmation: string;
-  role?: 'admin' | 'user';
-  country?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-}
-
-export interface UpdateUserRequest {
-  name?: string;
-  last_name?: string;
-  email?: string;
-  mobile_number?: string;
-  role?: 'admin' | 'user';
-  country?: string;
-  address?: string;
-  city?: string;
-  postal_code?: string;
-}
-
-export interface UserStatistics {
-  total_users: number;
-  active_users: number;
-  suspended_users: number;
-  verified_users: number;
-  unverified_users: number;
-  admin_users: number;
-  regular_users: number;
-}
+import { ApiResponse, PaginatedResponse, RegisterRequest, User } from '../service.types';
 
 export const usersApi = {
-  // GET /api/admin/users - List all users with search/filter
-  getUsers: (params?: UserListParams): Promise<ApiResponse<PaginatedResponse<User>>> =>
-    axios.get('/api/admin/users', { params }),
+  admin: {
+    getAllUsers: (params?: {
+      page?: number;
+      per_page?: number;
+      role?: 'admin' | 'user';
+    }): Promise<ApiResponse<PaginatedResponse<User>>> => axios.get('/api/admin/users', { params }),
 
-  // GET /api/admin/users/{id} - Show specific user
-  getUser: (id: number): Promise<ApiResponse<User>> => axios.get(`/api/admin/users/${id}`),
+    getUser: (id: number): Promise<ApiResponse<User>> => axios.get(`/api/admin/users/${id}`),
 
-  // POST /api/admin/users - Create new user
-  createUser: (body: CreateUserRequest): Promise<ApiResponse<User>> => axios.post('/api/admin/users', body),
+    createUser: (data: RegisterRequest): Promise<ApiResponse<User>> => axios.post('/api/admin/users', data),
 
-  // PUT /api/admin/users/{id} - Update user
-  updateUser: (id: number, body: UpdateUserRequest): Promise<ApiResponse<User>> =>
-    axios.put(`/api/admin/users/${id}`, body),
+    updateUser: (id: number, data: Partial<RegisterRequest>): Promise<ApiResponse<User>> =>
+      axios.patch(`/api/admin/users/${id}`, data),
 
-  // DELETE /api/admin/users/{id} - Delete user
-  deleteUser: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/users/${id}`),
+    deleteUser: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/users/${id}`),
+  },
 };

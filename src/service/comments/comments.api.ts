@@ -1,22 +1,6 @@
 import axios from 'axios';
 
-import { ApiResponse, CreateCommentRequest, PaginatedResponse } from '../service.types';
-
-// Add Comment interface to service.types.ts if not already present
-interface Comment {
-  id: number;
-  content: string;
-  user_id: number;
-  product_id: number;
-  status: 'pending' | 'approved' | 'rejected';
-  user: {
-    id: number;
-    name: string;
-    email: string;
-  };
-  created_at: string;
-  updated_at: string;
-}
+import { ApiResponse, Comment, CreateCommentRequest, PaginatedResponse } from '../service.types';
 
 export const commentsApi = {
   // Public comment endpoints
@@ -28,8 +12,18 @@ export const commentsApi = {
 
   // Admin comment management
   admin: {
-    getPendingComments: (): Promise<ApiResponse<PaginatedResponse<Comment>>> =>
-      axios.get('/api/admin/comments/pending'),
+    getPendingComments: (params?: {
+      page?: number;
+      per_page?: number;
+    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => axios.get('/api/admin/comments/pending', { params }),
+
+    getAllComments: (params?: {
+      page?: number;
+      per_page?: number;
+      status?: Comment['status'];
+    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => axios.get('/api/admin/comments', { params }),
+
+    getComment: (id: number): Promise<ApiResponse<Comment>> => axios.get(`/api/admin/comments/${id}`),
 
     approveComment: (id: number): Promise<ApiResponse<Comment>> => axios.patch(`/api/admin/comments/${id}/approve`),
 

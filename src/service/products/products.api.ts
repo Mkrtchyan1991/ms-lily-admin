@@ -12,13 +12,13 @@ import {
 
 export const productsApi = {
   // Public product endpoints
-  getProducts: (params?: {
+  getAllProducts: (params?: {
     category?: string;
     page?: number;
     per_page?: number;
-  }): Promise<ApiResponse<PaginatedResponse<IProduct>>> => axios.get('/api/admin/products', { params }),
+  }): Promise<ApiResponse<PaginatedResponse<IProduct>>> => axios.get('/api/products/allProducts', { params }),
 
-  getProduct: (id: number): Promise<ApiResponse<IProduct>> => axios.get(`/api/admin/products/${id}`),
+  getProduct: (id: number): Promise<ApiResponse<IProduct>> => axios.get(`/api/products/${id}`),
 
   // Filter endpoints
   getCategories: (category?: string): Promise<ApiResponse<CategoryProps[]>> =>
@@ -38,50 +38,32 @@ export const productsApi = {
     axios.get('/api/products/filter/brand', { params: { brand: brandId, category } }),
 
   filterByTag: (tagId: number, category?: string): Promise<ApiResponse<PaginatedResponse<IProduct>>> =>
-    axios.get('/api/products/filter/tag', { params: { tag: tagId, category } }),
+    axios.get('/api/products/filter/tag', { params: { tag_id: tagId, category } }),
+
+  // Comments
+  getProductComments: (productId: number): Promise<ApiResponse<PaginatedResponse<Comment>>> =>
+    axios.get(`/api/products/${productId}/comments`),
+
+  createComment: (productId: number, data: { content: string }): Promise<ApiResponse<Comment>> =>
+    axios.post(`/api/products/${productId}/comments`, data),
 
   // Admin product management
-  createProduct: (data: CreateProductRequest): Promise<ApiResponse<IProduct>> => {
-    const formData = new FormData();
+  admin: {
+    getProducts: (params?: { page?: number; per_page?: number }): Promise<ApiResponse<PaginatedResponse<IProduct>>> =>
+      axios.get('/api/admin/products', { params }),
 
-    // Add basic fields
-    formData.append('name', data.name);
-    formData.append('description', data.description);
-    formData.append('price', data.price.toString());
-    formData.append('category_id', data.category_id.toString());
-    formData.append('brand_id', data.brand_id.toString());
+    getProduct: (id: number): Promise<ApiResponse<IProduct>> => axios.get(`/api/admin/products/${id}`),
 
-    // Add optional fields
-    if (data.tags && data.tags.length > 0) {
-      data.tags.forEach((tag) => formData.append('tags[]', tag.toString()));
-    }
+    createProduct: (data: FormData): Promise<ApiResponse<IProduct>> =>
+      axios.post('/api/admin/products', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }),
 
-    if (data.images && data.images.length > 0) {
-      data.images.forEach((file) => formData.append('images[]', file));
-    }
+    updateProduct: (id: number, data: FormData): Promise<ApiResponse<IProduct>> =>
+      axios.patch(`/api/admin/products/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }),
 
-    return axios.post('/api/admin/products/store', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    deleteProduct: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/products/${id}`),
   },
-
-  updateProduct: (id: number, data: Partial<CreateProductRequest>): Promise<ApiResponse<IProduct>> => {
-    const formData = new FormData();
-
-    Object.entries(data).forEach(([key, value]) => {
-      if (key === 'images' && Array.isArray(value)) {
-        (value as File[]).forEach((file: File) => formData.append('images[]', file));
-      } else if (key === 'tags' && Array.isArray(value)) {
-        (value as number[]).forEach((tag) => formData.append('tags[]', tag.toString()));
-      } else if (value !== undefined) {
-        formData.append(key, String(value));
-      }
-    });
-
-    return axios.patch(`/api/admin/products/${id}`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
-  },
-
-  deleteProduct: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/products/${id}`),
 };

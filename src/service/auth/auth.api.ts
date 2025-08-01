@@ -17,6 +17,8 @@ export const authApi = {
 
   logout: (): Promise<ApiResponse<null>> => axios.post('/api/logout'),
 
+  logoutAllDevices: (): Promise<ApiResponse<null>> => axios.post('/api/logout-all-devices'),
+
   // User management
   getUser: (): Promise<ApiResponse<User>> => axios.get('/api/user'),
 
