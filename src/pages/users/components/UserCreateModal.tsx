@@ -78,7 +78,7 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({ open, onClose,
         postal_code: data.postal_code,
       };
 
-      await usersApi.createUser(createData);
+      await usersApi.admin.createUser(createData);
       message.success('User created successfully');
       reset();
       onClose();

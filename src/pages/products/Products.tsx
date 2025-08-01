@@ -32,7 +32,7 @@ export const Products = () => {
   // Fetch products from API
   const fetchProducts = async (page = 1, pageSize = 10) => {
     try {
-      const response = await productsApi.getProducts({
+      const response = await productsApi.admin.getProducts({
         page,
         per_page: pageSize,
       });
@@ -148,7 +148,7 @@ export const Products = () => {
 
   const handleDelete = async (productId: number) => {
     try {
-      await productsApi.deleteProduct(productId);
+      await productsApi.admin.deleteProduct(productId);
       message.success('Product deleted successfully');
       fetchProducts(pagination.current, pagination.pageSize);
     } catch (error) {

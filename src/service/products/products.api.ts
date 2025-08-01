@@ -54,9 +54,9 @@ export const productsApi = {
 
     getProduct: (id: number): Promise<ApiResponse<IProduct>> => axios.get(`/api/admin/products/${id}`),
 
-    createProduct: (data: FormData): Promise<ApiResponse<IProduct>> =>
+    createProduct: (data: CreateProductRequest): Promise<ApiResponse<IProduct>> =>
       axios.post('/api/admin/products', data, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        // headers: { 'Content-Type': 'multipart/form-data' },
       }),
 
     updateProduct: (id: number, data: FormData): Promise<ApiResponse<IProduct>> =>

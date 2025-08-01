@@ -105,7 +105,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
         updateData.password_confirmation = data.password_confirmation;
       }
 
-      await usersApi.updateUser(user.id, updateData);
+      await usersApi.admin.updateUser(user.id, updateData);
       message.success('User updated successfully');
       onClose();
       onSuccess?.();

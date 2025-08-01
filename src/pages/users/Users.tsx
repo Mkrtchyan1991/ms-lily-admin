@@ -48,7 +48,7 @@ export const Users: React.FC = () => {
   const fetchUsers = async (page = 1, perPage = 10, role?: 'admin' | 'user') => {
     setLoading(true);
     try {
-      const response = await usersApi.getUsers({ page, per_page: perPage, role });
+      const response = await usersApi.admin.getAllUsers({ page, per_page: perPage, role });
 
       setUsers(response.data.data);
       setTotal(response.data.total);
@@ -84,7 +84,7 @@ export const Users: React.FC = () => {
       cancelText: 'Cancel',
       onOk: async () => {
         try {
-          await usersApi.deleteUser(user.id);
+          await usersApi.admin.deleteUser(user.id);
           message.success('User deleted successfully');
           fetchUsers(currentPage, pageSize, roleFilter);
         } catch (error) {
