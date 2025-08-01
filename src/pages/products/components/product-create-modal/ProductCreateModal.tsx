@@ -63,7 +63,7 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
         images: data.images,
       };
 
-      await productsApi.createProduct(createData);
+      await productsApi.admin.createProduct(createData);
       message.success('Product created successfully');
       reset();
       onClose();
