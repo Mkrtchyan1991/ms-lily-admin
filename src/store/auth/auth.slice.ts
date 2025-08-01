@@ -1,5 +1,6 @@
 import { authApi } from '@/service/auth/auth.api';
 import { LoginRequest, RegisterRequest, User } from '@/service/service.types';
+import { catchErrorMessage } from '@/service/service.utils';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface AuthState {
@@ -23,8 +24,8 @@ export const loginUser = createAsyncThunk('auth/login', async (credentials: Logi
   try {
     const response = await authApi.login(credentials);
     return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Login failed');
+  } catch (error) {
+    return rejectWithValue(catchErrorMessage(error) || 'Login failed');
   }
 });
 
@@ -34,8 +35,8 @@ export const registerUser = createAsyncThunk(
     try {
       const response = await authApi.register(userData);
       return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Registration failed');
+    } catch (error) {
+      return rejectWithValue(catchErrorMessage(error) || 'Registration failed');
     }
   },
 );
@@ -43,8 +44,8 @@ export const registerUser = createAsyncThunk(
 export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
     await authApi.logout();
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Logout failed');
+  } catch (error) {
+    return rejectWithValue(catchErrorMessage(error) || 'Logout failed');
   }
 });
 
@@ -52,8 +53,8 @@ export const fetchUser = createAsyncThunk('auth/fetchUser', async (_, { rejectWi
   try {
     const response = await authApi.getUser();
     return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to fetch user');
+  } catch (error) {
+    return rejectWithValue(catchErrorMessage(error) || 'Failed to fetch user');
   }
 });
 

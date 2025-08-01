@@ -70,11 +70,11 @@ export const productsApi = {
 
     Object.entries(data).forEach(([key, value]) => {
       if (key === 'images' && Array.isArray(value)) {
-        value.forEach((file: any) => formData.append('images[]', file));
+        (value as File[]).forEach((file: File) => formData.append('images[]', file));
       } else if (key === 'tags' && Array.isArray(value)) {
-        value.forEach((tag) => formData.append('tags[]', tag.toString()));
+        (value as number[]).forEach((tag) => formData.append('tags[]', tag.toString()));
       } else if (value !== undefined) {
-        formData.append(key, value.toString());
+        formData.append(key, String(value));
       }
     });
 

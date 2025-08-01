@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { RegisterRequest, User } from '@/service/service.types';
+import { catchErrorMessage } from '@/service/service.utils';
 import { usersApi } from '@/service/users/users.api';
 import { Controller, useForm } from 'react-hook-form';
 import {
@@ -44,8 +45,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    watch,
-    setValue,
+    // watch,
   } = useForm<UserFormData>({
     defaultValues: {
       name: '',
@@ -62,7 +62,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
     },
   });
 
-  const password = watch('password');
+  // const password = watch('password');
 
   // Reset form when user changes
   useEffect(() => {
@@ -109,9 +109,8 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
       message.success('User updated successfully');
       onClose();
       onSuccess?.();
-    } catch (error: any) {
-      console.error('Failed to update user:', error);
-      const errorMessage = error.response?.data?.message || 'Failed to update user';
+    } catch (error) {
+      const errorMessage = catchErrorMessage(error) || 'Failed to update user';
       message.error(errorMessage);
     }
   };
@@ -130,16 +129,16 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
     return true;
   };
 
-  const validatePassword = (value: string) => {
-    if (value && value.length < 8) return 'Password must be at least 8 characters';
-    return true;
-  };
+  // const validatePassword = (value: string) => {
+  //   if (value && value.length < 8) return 'Password must be at least 8 characters';
+  //   return true;
+  // };
 
-  const validatePasswordConfirmation = (value: string) => {
-    if (password && !value) return 'Password confirmation is required';
-    if (value && value !== password) return 'Passwords do not match';
-    return true;
-  };
+  // const validatePasswordConfirmation = (value: string) => {
+  //   if (password && !value) return 'Password confirmation is required';
+  //   if (value && value !== password) return 'Passwords do not match';
+  //   return true;
+  // };
 
   return (
     <Modal title="Edit User" open={open} onCancel={onClose} footer={null} width={800} destroyOnClose>
