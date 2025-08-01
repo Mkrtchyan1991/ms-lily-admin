@@ -4,7 +4,7 @@ import { RootState } from '../store';
 
 const selectAuth = (state: RootState) => state.auth;
 
-export const selectIsAuthenticated = createSelector([selectAuth], (auth) => auth.isAuthenticated);
+export const selectIsAuthenticated = createSelector([selectAuth], (auth) => !!auth.token);
 
 export const selectAuthToken = createSelector([selectAuth], (auth) => auth.token);
 
