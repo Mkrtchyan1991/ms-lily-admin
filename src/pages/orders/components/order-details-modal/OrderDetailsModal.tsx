@@ -94,7 +94,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ open, orde
             Order #{order.id}
           </Title>
           <Tag color={getStatusColor(order.status)} icon={getStatusIcon(order.status)}>
-            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+            {order?.status?.charAt(0).toUpperCase() + order.status.slice(1)}
           </Tag>
         </div>
       }

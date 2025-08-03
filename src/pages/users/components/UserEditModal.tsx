@@ -141,7 +141,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
   // };
 
   return (
-    <Modal title="Edit User" open={open} onCancel={onClose} footer={null} width={800} destroyOnClose>
+    <Modal title="Edit User" open={open} onCancel={onClose} footer={null} width={800} destroyOnHidden>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <Row gutter={16}>
           <Col span={12}>

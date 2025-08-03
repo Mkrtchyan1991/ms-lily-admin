@@ -149,8 +149,8 @@ export const Users: React.FC = () => {
       render: (_, record) => (
         <div className={styles.userInfo}>
           <Avatar className={styles.avatar} size={40} icon={<UserOutlined />}>
-            {record.name.charAt(0).toUpperCase()}
-            {record.last_name.charAt(0).toUpperCase()}
+            {record?.name?.charAt(0).toUpperCase()}
+            {record?.last_name?.charAt(0).toUpperCase()}
           </Avatar>
           <div className={styles.details}>
             <div className={styles.name}>
