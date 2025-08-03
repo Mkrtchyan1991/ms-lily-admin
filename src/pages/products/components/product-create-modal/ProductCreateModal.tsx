@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { productsApi } from '@/service/products/products.api';
-import { CreateProductRequest } from '@/service/service.types';
 import { Controller, useForm } from 'react-hook-form';
-import { SaveOutlined, UploadOutlined } from '@ant-design/icons';
-import { App, Button, Col, Form, Input, InputNumber, Modal, Row, Select, Upload } from 'antd';
+import { DeleteOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
+import { App, Button, Col, Form, Image, Input, InputNumber, Modal, Row, Select, Upload } from 'antd';
+import type { UploadFile } from 'antd/es/upload/interface';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -18,7 +18,7 @@ interface ProductFormData {
   size: string;
   color: string;
   tags: number[];
-  images: File[];
+  image: File | null; // Changed from images[] to single image
 }
 
 interface ProductCreateProps {
@@ -29,6 +29,10 @@ interface ProductCreateProps {
 
 export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose, onSuccess }) => {
   const { message } = App.useApp();
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+
   const {
     control,
     handleSubmit,
@@ -47,35 +51,133 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
       size: '',
       color: '',
       tags: [],
-      images: [],
+      image: null,
     },
   });
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      const createData: CreateProductRequest = {
-        name: data.name,
-        description: data.description,
-        price: data.price,
-        category_id: data.category_id,
-        brand_id: data.brand_id,
-        tags: data.tags,
-        images: data.images,
-      };
+      // Create FormData for file upload
+      const formData = new FormData();
 
-      await productsApi.admin.createProduct(createData);
+      // Append all text fields - match Laravel backend exactly
+      formData.append('name', data.name);
+      formData.append('description', data.description || '');
+      formData.append('price', data.price.toString());
+      formData.append('stock', data.stock.toString());
+      formData.append('category_id', data.category_id.toString());
+      formData.append('brand_id', data.brand_id.toString());
+      formData.append('color', data.color || '');
+      formData.append('size', data.size || '');
+
+      // Append tags array properly
+      if (data.tags && data.tags.length > 0) {
+        data.tags.forEach((tag, index) => {
+          formData.append(`tags[${index}]`, tag.toString());
+        });
+      }
+
+      // Append single image file (backend expects 'image', not 'images')
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
+
+      // Debug: Log FormData contents
+      // console.log('FormData contents:');
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(key, value);
+      // }
+
+      await productsApi.admin.createProduct(formData);
       message.success('Product created successfully');
+
+      // Reset form and clear image
       reset();
+      setImageFile(null);
+      setImagePreview(null);
+      setFileList([]);
+
       onClose();
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to create product:', error);
-      message.error('Failed to create product');
+
+      // Better error handling
+      if (error.response?.data?.errors) {
+        const validationErrors = Object.values(error.response.data.errors).flat();
+        message.error(`Validation errors: ${validationErrors.join(', ')}`);
+      } else if (error.response?.data?.message) {
+        message.error(error.response.data.message);
+      } else {
+        message.error('Failed to create product');
+      }
     }
   };
 
+  const handleImageChange = (info: any) => {
+    const { fileList: newFileList } = info;
+
+    // Only allow one file (since backend expects single image)
+    const latestFileList = newFileList.slice(-1);
+    setFileList(latestFileList);
+
+    if (latestFileList.length > 0) {
+      const file = latestFileList[0].originFileObj as File;
+
+      // Validate file size (2MB limit to match Laravel validation)
+      if (file.size > 2 * 1024 * 1024) {
+        message.error('Image must be less than 2MB');
+        setFileList([]);
+        setImageFile(null);
+        setImagePreview(null);
+        setValue('image', null);
+        return;
+      }
+
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!validTypes.includes(file.type)) {
+        message.error('Please upload a valid image file (JPEG, PNG, GIF)');
+        setFileList([]);
+        setImageFile(null);
+        setImagePreview(null);
+        setValue('image', null);
+        return;
+      }
+
+      setImageFile(file);
+      setValue('image', file);
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setImageFile(null);
+      setImagePreview(null);
+      setValue('image', null);
+    }
+  };
+
+  const removeImage = () => {
+    setFileList([]);
+    setImageFile(null);
+    setImagePreview(null);
+    setValue('image', null);
+  };
+
+  const handleCancel = () => {
+    reset();
+    setImageFile(null);
+    setImagePreview(null);
+    setFileList([]);
+    onClose();
+  };
+
   return (
-    <Modal title="Create New Product" open={open} onCancel={onClose} footer={null} width={800} destroyOnHidden>
+    <Modal title="Create New Product" open={open} onCancel={handleCancel} footer={null} width={800} destroyOnClose>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <Row gutter={16}>
           <Col span={12}>
@@ -88,7 +190,10 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
               <Controller
                 name="name"
                 control={control}
-                rules={{ required: 'Product name is required' }}
+                rules={{
+                  required: 'Product name is required',
+                  maxLength: { value: 255, message: 'Name must be less than 255 characters' },
+                }}
                 render={({ field }) => <Input {...field} placeholder="Enter product name" />}
               />
             </Form.Item>
@@ -192,7 +297,10 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
               <Controller
                 name="size"
                 control={control}
-                render={({ field }) => <Input {...field} placeholder="Size" />}
+                rules={{
+                  maxLength: { value: 20, message: 'Size must be less than 20 characters' },
+                }}
+                render={({ field }) => <Input {...field} placeholder="Size (optional)" />}
               />
             </Form.Item>
           </Col>
@@ -202,7 +310,10 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
               <Controller
                 name="color"
                 control={control}
-                render={({ field }) => <Input {...field} placeholder="Color" />}
+                rules={{
+                  maxLength: { value: 50, message: 'Color must be less than 50 characters' },
+                }}
+                render={({ field }) => <Input {...field} placeholder="Color (optional)" />}
               />
             </Form.Item>
           </Col>
@@ -212,13 +323,11 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
           label="Description"
           validateStatus={errors.description ? 'error' : ''}
           help={errors.description?.message}
-          required
         >
           <Controller
             name="description"
             control={control}
-            rules={{ required: 'Description is required' }}
-            render={({ field }) => <TextArea {...field} rows={4} placeholder="Enter product description" />}
+            render={({ field }) => <TextArea {...field} rows={4} placeholder="Enter product description (optional)" />}
           />
         </Form.Item>
 
@@ -227,7 +336,7 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
             name="tags"
             control={control}
             render={({ field }) => (
-              <Select {...field} mode="multiple" placeholder="Select tags" style={{ width: '100%' }}>
+              <Select {...field} mode="multiple" placeholder="Select tags (optional)" style={{ width: '100%' }}>
                 <Option value={1}>Popular</Option>
                 <Option value={2}>New</Option>
                 <Option value={3}>Sale</Option>
@@ -236,21 +345,43 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
           />
         </Form.Item>
 
-        <Form.Item label="Product Images">
+        <Form.Item label="Product Image">
           <Controller
-            name="images"
+            name="image"
             control={control}
             render={({ field }) => (
-              <Upload
-                multiple
-                beforeUpload={() => false}
-                onChange={(info) => {
-                  const files = info.fileList.map((file) => file.originFileObj).filter(Boolean) as File[];
-                  field.onChange(files);
-                }}
-              >
-                <Button icon={<UploadOutlined />}>Upload Images</Button>
-              </Upload>
+              <div>
+                <Upload
+                  fileList={fileList}
+                  beforeUpload={() => false} // Prevent auto upload
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  maxCount={1} // Only allow one image
+                  listType="picture"
+                >
+                  <Button icon={<UploadOutlined />} disabled={fileList.length >= 1}>
+                    Upload Image (Max 2MB)
+                  </Button>
+                </Upload>
+
+                {imagePreview && (
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                      <span>Preview:</span>
+                      <Button
+                        type="text"
+                        icon={<DeleteOutlined />}
+                        size="small"
+                        onClick={removeImage}
+                        style={{ marginLeft: 8 }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                    <Image src={imagePreview} alt="Product preview" style={{ maxWidth: 200, maxHeight: 200 }} />
+                  </div>
+                )}
+              </div>
             )}
           />
         </Form.Item>
@@ -258,7 +389,7 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
         <Form.Item>
           <Row gutter={16}>
             <Col>
-              <Button onClick={onClose}>Cancel</Button>
+              <Button onClick={handleCancel}>Cancel</Button>
             </Col>
             <Col>
               <Button type="primary" htmlType="submit" loading={isSubmitting} icon={<SaveOutlined />}>

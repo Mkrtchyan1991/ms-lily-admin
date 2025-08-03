@@ -42,15 +42,20 @@ export const productsApi = {
 
     getProduct: (id: number): Promise<ApiResponse<IProduct>> => axios.get(`/api/admin/products/${id}`),
 
+    // Fixed: Changed endpoint from '/api/admin/products' to '/api/admin/products/store'
     createProduct: (data: FormData): Promise<ApiResponse<IProduct>> =>
-      axios.post('/api/admin/products', data, {
+      axios.post('/api/admin/products/store', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       }),
 
-    updateProduct: (id: number, data: FormData): Promise<ApiResponse<IProduct>> =>
-      axios.patch(`/api/admin/products/${id}`, data, {
+    // For update, you might need to use POST with _method=PATCH for FormData
+    updateProduct: (id: number, data: FormData): Promise<ApiResponse<IProduct>> => {
+      // Laravel doesn't handle PATCH with FormData well, so we use POST with method spoofing
+      data.append('_method', 'PATCH');
+      return axios.post(`/api/admin/products/${id}`, data, {
         headers: { 'Content-Type': 'multipart/form-data' },
-      }),
+      });
+    },
 
     deleteProduct: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/products/${id}`),
   },
