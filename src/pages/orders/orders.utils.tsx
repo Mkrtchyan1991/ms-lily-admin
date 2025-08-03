@@ -6,7 +6,7 @@ import {
   ShoppingCartOutlined,
   TruckOutlined,
 } from '@ant-design/icons';
-import { Badge, Button, Space, Tag, Tooltip } from 'antd';
+import { Badge, Button, Select, Space, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 
 const getStatusColor = (status: Order['status']) => {
@@ -45,9 +45,12 @@ const getStatusIcon = (status: Order['status']) => {
 
 interface OrdersColumnsProps {
   handleView: (order: Order) => void;
+  handleStatusChange: (id: number, status: Order['status']) => void;
 }
 
-export const createOrdersColumns = ({ handleView }: OrdersColumnsProps): ColumnsType<Order> => [
+const { Option } = Select;
+
+export const createOrdersColumns = ({ handleView, handleStatusChange }: OrdersColumnsProps): ColumnsType<Order> => [
   {
     title: 'Order ID',
     dataIndex: 'id',
@@ -94,7 +97,7 @@ export const createOrdersColumns = ({ handleView }: OrdersColumnsProps): Columns
     title: 'Status',
     dataIndex: 'status',
     key: 'status',
-    width: 120,
+    width: 150,
     filters: [
       { text: 'Pending', value: 'pending' },
       { text: 'Processing', value: 'processing' },
@@ -103,10 +106,34 @@ export const createOrdersColumns = ({ handleView }: OrdersColumnsProps): Columns
       { text: 'Cancelled', value: 'cancelled' },
     ],
     onFilter: (value, record) => record.status === value,
-    render: (status: Order['status']) => (
-      <Tag color={getStatusColor(status)} icon={getStatusIcon(status)}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </Tag>
+    render: (status: Order['status'], record: Order) => (
+      <Select value={status} style={{ width: '100%' }} onChange={(value) => handleStatusChange(record.id, value)}>
+        <Option value="pending">
+          <Tag color={getStatusColor('pending')} icon={getStatusIcon('pending')}>
+            Pending
+          </Tag>
+        </Option>
+        <Option value="processing">
+          <Tag color={getStatusColor('processing')} icon={getStatusIcon('processing')}>
+            Processing
+          </Tag>
+        </Option>
+        <Option value="shipped">
+          <Tag color={getStatusColor('shipped')} icon={getStatusIcon('shipped')}>
+            Shipped
+          </Tag>
+        </Option>
+        <Option value="delivered">
+          <Tag color={getStatusColor('delivered')} icon={getStatusIcon('delivered')}>
+            Delivered
+          </Tag>
+        </Option>
+        <Option value="cancelled">
+          <Tag color={getStatusColor('cancelled')} icon={getStatusIcon('cancelled')}>
+            Cancelled
+          </Tag>
+        </Option>
+      </Select>
     ),
   },
   {

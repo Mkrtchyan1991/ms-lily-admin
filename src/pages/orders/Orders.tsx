@@ -72,6 +72,20 @@ export const Orders = () => {
     fetchOrders();
   };
 
+  const handleStatusChange = async (id: number, status: Order['status']) => {
+    try {
+      await ordersApi.admin.updateOrderStatus(id, status);
+      setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+      if (selectedOrder && selectedOrder.id === id) {
+        setSelectedOrder({ ...selectedOrder, status });
+      }
+      message.success('Order status updated');
+    } catch (error) {
+      console.error('Failed to update order status:', error);
+      message.error('Failed to update order status');
+    }
+  };
+
   // Calculate statistics
   const stats = {
     total: orders.length,
@@ -84,7 +98,7 @@ export const Orders = () => {
   };
 
   // Create columns with handler functions
-  const ordersColumns = createOrdersColumns({ handleView });
+  const ordersColumns = createOrdersColumns({ handleView, handleStatusChange });
 
   return (
     <div className={styles.container}>
