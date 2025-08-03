@@ -1,5 +1,6 @@
 import { baseURL } from '@/configs/axios.config';
 import { IProduct, TagProps } from '@/service/service.types';
+import { getFile } from '@/service/service.utils';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Badge, Button, Image, Space, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -25,7 +26,7 @@ export const createProductsColumns = ({ handleEdit, handleDelete }: ProductsColu
       <Image
         width={50}
         height={50}
-        src={image ? `${baseURL}/storage/${image}` : '  https://placehold.co/50x50?text=No+Image'}
+        src={image ? getFile(image) : '  https://placehold.co/50x50?text=No+Image'}
         fallback="  https://placehold.co/50x50?text=No+Image"
         style={{ objectFit: 'cover', borderRadius: '4px' }}
       />

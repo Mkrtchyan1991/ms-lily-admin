@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { productsApi } from '@/service/products/products.api';
 import { BrandProps, CategoryProps, IProduct, TagProps } from '@/service/service.types';
-import { catchErrorMessage } from '@/service/service.utils';
+import { catchErrorMessage, getFile } from '@/service/service.utils';
 import { Controller, useForm } from 'react-hook-form';
 import { DeleteOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import { App, Button, Col, Form, Image, Input, InputNumber, Modal, Row, Select, Upload } from 'antd';
@@ -92,7 +92,7 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
         tags: product.tags.map((t) => t.id),
         image: null,
       });
-      setImagePreview(product.image);
+      setImagePreview(getFile(product.image));
       setFileList([]);
       setImageFile(null);
     }
