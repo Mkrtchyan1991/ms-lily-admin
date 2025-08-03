@@ -1,5 +1,6 @@
+import { baseURL } from '@/configs/axios.config';
 import { IProduct, TagProps } from '@/service/service.types';
-import { DeleteOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Badge, Button, Image, Space, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 
@@ -12,14 +13,9 @@ const getStockStatus = (stock: number) => {
 interface ProductsColumnsProps {
   handleEdit: (product: IProduct) => void;
   handleDelete: (productId: number) => void;
-  handleView: (productId: IProduct) => void;
 }
 
-export const createProductsColumns = ({
-  handleEdit,
-  handleDelete,
-  handleView,
-}: ProductsColumnsProps): ColumnsType<IProduct> => [
+export const createProductsColumns = ({ handleEdit, handleDelete }: ProductsColumnsProps): ColumnsType<IProduct> => [
   {
     title: 'Image',
     dataIndex: 'image',
@@ -29,8 +25,8 @@ export const createProductsColumns = ({
       <Image
         width={50}
         height={50}
-        src={image ? `${image}` : 'https://via.placeholder.com/50x50?text=No+Image'}
-        fallback="https://via.placeholder.com/50x50?text=No+Image"
+        src={image ? `${baseURL}/storage/${image}` : '  https://placehold.co/50x50?text=No+Image'}
+        fallback="  https://placehold.co/50x50?text=No+Image"
         style={{ objectFit: 'cover', borderRadius: '4px' }}
       />
     ),
@@ -107,9 +103,6 @@ export const createProductsColumns = ({
     render: (_, record: IProduct) => {
       return (
         <Space size="small">
-          <Tooltip title="View">
-            <Button type="text" icon={<EyeOutlined />} onClick={() => handleView(record)} />
-          </Tooltip>
           <Tooltip title="Edit">
             <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
           </Tooltip>

@@ -117,11 +117,6 @@ export const Products = () => {
     }
   };
 
-  const handleView = (product: IProduct) => {
-    console.log('View product:', product);
-    // TODO: Implement view functionality
-  };
-
   // Updated filter handlers
   const handleCategoryChange = (value: string | undefined) => {
     setSelectedCategory(value);
@@ -264,7 +259,7 @@ export const Products = () => {
 
             {/* Products Table */}
             <Table
-              columns={createProductsColumns({ handleEdit, handleDelete, handleView })}
+              columns={createProductsColumns({ handleEdit, handleDelete })}
               dataSource={filteredProducts}
               loading={loading}
               pagination={{

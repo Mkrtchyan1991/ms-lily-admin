@@ -2,7 +2,8 @@ import { logout } from '@/store/auth/auth.slice';
 import { store } from '@/store/store';
 import axios, { AxiosError } from 'axios';
 
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
+export const baseURL = import.meta.env.VITE_BASE_URL;
+axios.defaults.baseURL = `${baseURL}/api`;
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
