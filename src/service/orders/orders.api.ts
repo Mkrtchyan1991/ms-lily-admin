@@ -10,14 +10,14 @@ interface CreateOrderRequest {
 export const ordersApi = {
   // User orders
   getUserOrders: (config?: AxiosRequestConfig): Promise<ApiResponse<PaginatedResponse<Order>>> =>
-    axios.get('/api/orders', config),
+    axios.get('/orders', config),
 
-  getOrder: (id: number): Promise<ApiResponse<Order>> => axios.get(`/api/orders/${id}`),
+  getOrder: (id: number): Promise<ApiResponse<Order>> => axios.get(`/orders/${id}`),
 
-  createOrder: (data: CreateOrderRequest): Promise<ApiResponse<Order>> => axios.post('/api/orders', data),
+  createOrder: (data: CreateOrderRequest): Promise<ApiResponse<Order>> => axios.post('/orders', data),
 
   updateOrderStatus: (id: number, status: Order['status']): Promise<ApiResponse<Order>> =>
-    axios.patch(`/api/orders/${id}/status`, { status }),
+    axios.patch(`/orders/${id}/status`, { status }),
 
   // Admin order management
   admin: {
@@ -25,13 +25,13 @@ export const ordersApi = {
       page?: number;
       per_page?: number;
       status?: Order['status'];
-    }): Promise<ApiResponse<PaginatedResponse<Order>>> => axios.get('/api/admin/orders', { params }),
+    }): Promise<ApiResponse<PaginatedResponse<Order>>> => axios.get('/admin/orders', { params }),
 
-    getOrder: (id: number): Promise<ApiResponse<Order>> => axios.get(`/api/admin/orders/${id}`),
+    getOrder: (id: number): Promise<ApiResponse<Order>> => axios.get(`/admin/orders/${id}`),
 
     updateOrderStatus: (id: number, status: Order['status']): Promise<ApiResponse<Order>> =>
-      axios.patch(`/api/admin/orders/${id}/status`, { status }),
+      axios.patch(`/admin/orders/${id}/status`, { status }),
 
-    deleteOrder: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/orders/${id}`),
+    deleteOrder: (id: number): Promise<ApiResponse<null>> => axios.delete(`/admin/orders/${id}`),
   },
 };

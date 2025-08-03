@@ -5,30 +5,30 @@ import { ApiResponse, Comment, CreateCommentRequest, PaginatedResponse } from '.
 export const commentsApi = {
   // Public comment endpoints
   getProductComments: (productId: number): Promise<ApiResponse<PaginatedResponse<Comment>>> =>
-    axios.get(`/api/products/${productId}/comments`),
+    axios.get(`/products/${productId}/comments`),
 
   createComment: (productId: number, data: CreateCommentRequest): Promise<ApiResponse<Comment>> =>
-    axios.post(`/api/products/${productId}/comments`, data),
+    axios.post(`/products/${productId}/comments`, data),
 
   // Admin comment management
   admin: {
     getPendingComments: (params?: {
       page?: number;
       per_page?: number;
-    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => axios.get('/api/admin/comments/pending', { params }),
+    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => axios.get('/admin/comments/pending', { params }),
 
     getAllComments: (params?: {
       page?: number;
       per_page?: number;
       status?: Comment['status'];
-    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => axios.get('/api/admin/comments', { params }),
+    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => axios.get('/admin/comments', { params }),
 
-    getComment: (id: number): Promise<ApiResponse<Comment>> => axios.get(`/api/admin/comments/${id}`),
+    getComment: (id: number): Promise<ApiResponse<Comment>> => axios.get(`/admin/comments/${id}`),
 
-    approveComment: (id: number): Promise<ApiResponse<Comment>> => axios.patch(`/api/admin/comments/${id}/approve`),
+    approveComment: (id: number): Promise<ApiResponse<Comment>> => axios.patch(`/admin/comments/${id}/approve`),
 
-    rejectComment: (id: number): Promise<ApiResponse<Comment>> => axios.patch(`/api/admin/comments/${id}/reject`),
+    rejectComment: (id: number): Promise<ApiResponse<Comment>> => axios.patch(`/admin/comments/${id}/reject`),
 
-    deleteComment: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/comments/${id}`),
+    deleteComment: (id: number): Promise<ApiResponse<null>> => axios.delete(`/admin/comments/${id}`),
   },
 };

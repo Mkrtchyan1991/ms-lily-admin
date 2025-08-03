@@ -11,20 +11,20 @@ interface AuthResponse {
 
 export const authApi = {
   // Authentication
-  login: (body: LoginRequest): Promise<{ data: AuthResponse }> => axios.post('/api/login', body),
+  login: (body: LoginRequest): Promise<{ data: AuthResponse }> => axios.post('/login', body),
 
-  register: (body: RegisterRequest): Promise<{ data: AuthResponse }> => axios.post('/api/register', body),
+  register: (body: RegisterRequest): Promise<{ data: AuthResponse }> => axios.post('/register', body),
 
-  logout: (): Promise<ApiResponse<null>> => axios.post('/api/logout'),
+  logout: (): Promise<ApiResponse<null>> => axios.post('/logout'),
 
-  logoutAllDevices: (): Promise<ApiResponse<null>> => axios.post('/api/logout-all-devices'),
+  logoutAllDevices: (): Promise<ApiResponse<null>> => axios.post('/logout-all-devices'),
 
   // User management
-  getUser: (): Promise<ApiResponse<User>> => axios.get('/api/user'),
+  getUser: (): Promise<ApiResponse<User>> => axios.get('/user'),
 
-  getProfile: (): Promise<ApiResponse<User>> => axios.get('/api/profile'),
+  getProfile: (): Promise<ApiResponse<User>> => axios.get('/profile'),
 
-  updateProfile: (body: Partial<RegisterRequest>): Promise<ApiResponse<User>> => axios.patch('/api/profile', body),
+  updateProfile: (body: Partial<RegisterRequest>): Promise<ApiResponse<User>> => axios.patch('/profile', body),
 
   // Email verification
   verifyEmail: (id: string, hash: string, expires: string, signature: string): Promise<ApiResponse<null>> =>

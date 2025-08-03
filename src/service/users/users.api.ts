@@ -8,15 +8,15 @@ export const usersApi = {
       page?: number;
       per_page?: number;
       role?: 'admin' | 'user';
-    }): Promise<ApiResponse<PaginatedResponse<User>>> => axios.get('/api/admin/users', { params }),
+    }): Promise<ApiResponse<PaginatedResponse<User>>> => axios.get('/admin/users', { params }),
 
-    getUser: (id: number): Promise<ApiResponse<User>> => axios.get(`/api/admin/users/${id}`),
+    getUser: (id: number): Promise<ApiResponse<User>> => axios.get(`/admin/users/${id}`),
 
-    createUser: (data: RegisterRequest): Promise<ApiResponse<User>> => axios.post('/api/admin/users', data),
+    createUser: (data: RegisterRequest): Promise<ApiResponse<User>> => axios.post('/admin/users', data),
 
     updateUser: (id: number, data: Partial<RegisterRequest>): Promise<ApiResponse<User>> =>
-      axios.patch(`/api/admin/users/${id}`, data),
+      axios.patch(`/admin/users/${id}`, data),
 
-    deleteUser: (id: number): Promise<ApiResponse<null>> => axios.delete(`/api/admin/users/${id}`),
+    deleteUser: (id: number): Promise<ApiResponse<null>> => axios.delete(`/admin/users/${id}`),
   },
 };
