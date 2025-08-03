@@ -7,6 +7,7 @@ import { App, Button, Card, Col, Input, Row, Select, Table, Typography } from 'a
 import styles from './products.module.scss';
 
 import { ProductCreateModal } from './components/product-create-modal/ProductCreateModal';
+import ProductEditModal from './components/product-edit-modal/ProductEditModal';
 import { createProductsColumns } from './products.utils';
 
 const { Title } = Typography;
@@ -25,6 +26,8 @@ export const Products = () => {
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [tags, setTags] = useState<TagProps[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -99,8 +102,8 @@ export const Products = () => {
   });
 
   const handleEdit = (product: IProduct) => {
-    console.log('Edit product:', product);
-    // TODO: Implement edit functionality
+    setEditingProduct(product);
+    setIsEditModalOpen(true);
   };
 
   const handleDelete = async (productId: number) => {
@@ -282,6 +285,16 @@ export const Products = () => {
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={() => {
           setIsCreateModalOpen(false);
+          fetchProducts(pagination.current, pagination.pageSize);
+        }}
+      />
+      <ProductEditModal
+        open={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        product={editingProduct}
+        onSuccess={() => {
+          setIsEditModalOpen(false);
+          setEditingProduct(null);
           fetchProducts(pagination.current, pagination.pageSize);
         }}
       />
