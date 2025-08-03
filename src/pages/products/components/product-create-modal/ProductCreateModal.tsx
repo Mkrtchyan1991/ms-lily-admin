@@ -177,7 +177,7 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
   };
 
   return (
-    <Modal title="Create New Product" open={open} onCancel={handleCancel} footer={null} width={800} destroyOnClose>
+    <Modal title="Create New Product" open={open} onCancel={handleCancel} footer={null} width={800} destroyOnHidden>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <Row gutter={16}>
           <Col span={12}>
