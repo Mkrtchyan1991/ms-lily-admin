@@ -373,7 +373,6 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
                   onChange={handleImageChange}
                   accept="image/*"
                   maxCount={1}
-                  listType="picture"
                 >
                   <Button icon={<UploadOutlined />} disabled={fileList.length >= 1}>
                     Upload Image (Max 2MB)

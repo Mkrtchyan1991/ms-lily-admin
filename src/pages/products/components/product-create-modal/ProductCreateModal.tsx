@@ -357,7 +357,6 @@ export const ProductCreateModal: React.FC<ProductCreateProps> = ({ open, onClose
                   onChange={handleImageChange}
                   accept="image/*"
                   maxCount={1} // Only allow one image
-                  listType="picture"
                 >
                   <Button icon={<UploadOutlined />} disabled={fileList.length >= 1}>
                     Upload Image (Max 2MB)
