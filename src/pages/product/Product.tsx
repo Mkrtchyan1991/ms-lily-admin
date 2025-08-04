@@ -22,29 +22,32 @@ export const ProductPage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
   const [commentValue, setCommentValue] = useState('');
 
+  const getComments = async (productId: number) => {
+    try {
+      const commentsRes = await productsApi.getProductComments(productId);
+      setComments(commentsRes.data.data);
+    } catch (error) {
+      console.error('Failed to load comments:', error);
+      message.error('Failed to load comments');
+    }
+  };
+
+  const fetchComments = async () => {
+    try {
+      setLoading(true);
+      const [productRes] = await Promise.all([productsApi.getProduct(productId), getComments(productId)]);
+      if (productRes.data) setProduct(productRes.data);
+    } catch (error) {
+      console.error('Failed to load product:', error);
+      message.error('Failed to load product');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!productId) return;
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const [productRes, commentsRes] = await Promise.all([
-          productsApi.getProduct(productId),
-          productsApi.getProductComments(productId),
-        ]);
-        if (productRes.data) {
-          setProduct(productRes.data);
-        }
-        if (commentsRes.data) {
-          setComments(commentsRes.data.data);
-        }
-      } catch (error) {
-        console.error('Failed to load product:', error);
-        message.error('Failed to load product');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    fetchComments();
   }, [productId, message]);
 
   const handleAddComment = async () => {
@@ -53,9 +56,9 @@ export const ProductPage: React.FC = () => {
       setSubmitting(true);
       const response = await productsApi.createComment(productId, { content: commentValue });
       if (response.data) {
-        setComments((prev) => [response.data, ...prev]);
         setCommentValue('');
         message.success('Comment added successfully');
+        await getComments(productId);
       }
     } catch (error) {
       console.error('Failed to add comment:', error);
