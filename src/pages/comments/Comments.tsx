@@ -35,7 +35,6 @@ import styles from './comments.module.scss';
 
 const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
-const { confirm } = Modal;
 
 interface CommentsTableData extends ProductComment {
   key: string;
@@ -154,7 +153,7 @@ const CommentDetailsModal: React.FC<{
 };
 
 export const CommentsPage: React.FC = () => {
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const [comments, setComments] = useState<ProductComment[]>([]);
   const [loading, setLoading] = useState(false);
   const [totalComments, setTotalComments] = useState(0);
@@ -217,7 +216,7 @@ export const CommentsPage: React.FC = () => {
   };
 
   const handleDelete = async (id: number) => {
-    confirm({
+    modal.confirm({
       title: 'Are you sure you want to delete this comment?',
       icon: <ExclamationCircleOutlined />,
       content: 'This action cannot be undone.',
