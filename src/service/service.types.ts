@@ -103,17 +103,6 @@ export interface OrderItem {
   total: string | null;
 }
 
-export interface Comment {
-  id: number;
-  content: string;
-  user_id: number;
-  product_id: number;
-  status: 'pending' | 'approved' | 'rejected';
-  user: User;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface CreateCommentRequest {
   content: string;
 }
@@ -191,47 +180,58 @@ export interface ProductFilterParams {
   per_page?: number; // 1-50, default: 10
   page?: number; // Current page number
 }
+// Add these types to your service.types.ts file
 
-// Updated Comment interface in service.types.ts
 export interface Comment {
   id: number;
   content: string;
-  user_id: number;
+  status: 'pending' | 'approved' | 'rejected';
+  user: {
+    id: number;
+    name: string;
+    email?: string;
+  };
+  product?: {
+    id: number;
+    name: string;
+  };
   product_id: number;
-  status: 'pending' | 'approved' | 'rejected'; // Updated to use status instead of approved
-  user: User;
   created_at: string;
   updated_at: string;
+  // For backward compatibility
+  approved: boolean;
 }
 
-// Alternative interface if your backend still uses the "approved" field
-// You can use this instead if changing the backend is not feasible
-export interface CommentLegacy {
-  id: number;
+export interface CreateCommentRequest {
   content: string;
-  user_id: number;
-  product_id: number;
-  approved: number; // 0 = pending, 1 = approved, 2 = rejected (if supported)
-  user: User;
-  created_at: string;
-  updated_at: string;
 }
 
-// Helper function to convert legacy format to new format
-export const convertLegacyComment = (legacyComment: CommentLegacy): Comment => {
-  const getStatus = (approved: number): Comment['status'] => {
-    switch (approved) {
-      case 1:
-        return 'approved';
-      case 2:
-        return 'rejected';
-      default:
-        return 'pending';
-    }
+export interface PaginatedResponse<T> {
+  data: T[];
+  meta: {
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
   };
+}
 
-  return {
-    ...legacyComment,
-    status: getStatus(legacyComment.approved),
-  };
-};
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+}
+
+// Additional types for the admin functionality
+export interface CommentFilters {
+  page?: number;
+  per_page?: number;
+  status?: Comment['status'] | 'all';
+  search?: string;
+  sort_by?: 'created_at' | 'updated_at' | 'id';
+  sort_order?: 'asc' | 'desc';
+}
+
+export interface BatchUpdateRequest {
+  ids: number[];
+  action: 'approve' | 'reject' | 'delete';
+}
