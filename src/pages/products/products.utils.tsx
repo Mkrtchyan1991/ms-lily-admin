@@ -1,6 +1,7 @@
 import { baseURL } from '@/configs/axios.config';
 import { IProduct, TagProps } from '@/service/service.types';
 import { getFile } from '@/service/service.utils';
+import { NavLink } from 'react-router';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { Badge, Button, Image, Space, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -39,7 +40,9 @@ export const createProductsColumns = ({ handleEdit, handleDelete }: ProductsColu
     sorter: (a, b) => a.name.localeCompare(b.name),
     render: (text: string, record: IProduct) => (
       <div>
-        <div style={{ fontWeight: 500 }}>{text}</div>
+        <div style={{ fontWeight: 500 }}>
+          <NavLink to={`/products/${record.id}`}>{text}</NavLink>
+        </div>
         <div style={{ fontSize: '12px', color: '#666' }}>{record.description}</div>
       </div>
     ),

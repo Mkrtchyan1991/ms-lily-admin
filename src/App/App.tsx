@@ -6,6 +6,7 @@ import { Comments } from '@/pages/comments/Comments';
 import { DashboardPage } from '@/pages/dashboard/Dashboard.page';
 import { LoginPage } from '@/pages/login/Login';
 import { Orders } from '@/pages/orders/Orders';
+import { ProductPage } from '@/pages/product/Product';
 import { Products } from '@/pages/products/Products';
 import { ProfilePage } from '@/pages/profile/Profile';
 import { Users } from '@/pages/users/Users';
@@ -48,6 +49,7 @@ const App: React.FC = () => {
                       <Route path="/users" element={<Users />} />
                       <Route path="/orders" element={<Orders />} />
                       <Route path="/products" element={<Products />} />
+                      <Route path="/products/:id" element={<ProductPage />} />
                       <Route path="/profile" element={<ProfilePage />} />
                       <Route path="/comments" element={<Comments />} />
                     </Routes>
