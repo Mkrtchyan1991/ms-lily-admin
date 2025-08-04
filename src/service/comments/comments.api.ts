@@ -1,13 +1,13 @@
 import axios from 'axios';
 
-import { ApiResponse, Comment, CreateCommentRequest, PaginatedResponse } from '../service.types';
+import { ApiResponse, Comment as ProductComment, CreateCommentRequest, PaginatedResponse } from '../service.types';
 
 export const commentsApi = {
   // Public comment endpoints
-  getProductComments: (productId: number): Promise<ApiResponse<PaginatedResponse<Comment>>> =>
+  getProductComments: (productId: number): Promise<ApiResponse<PaginatedResponse<ProductComment>>> =>
     axios.get(`/products/${productId}/comments`),
 
-  createComment: (productId: number, data: CreateCommentRequest): Promise<ApiResponse<Comment>> =>
+  createComment: (productId: number, data: CreateCommentRequest): Promise<ApiResponse<ProductComment>> =>
     axios.post(`/products/${productId}/comments`, data),
 
   // Admin comment management
@@ -16,11 +16,11 @@ export const commentsApi = {
     getAllComments: (params?: {
       page?: number;
       per_page?: number;
-      status?: Comment['status'] | 'all';
+      status?: ProductComment['status'] | 'all';
       search?: string;
       sort_by?: 'created_at' | 'updated_at' | 'id';
       sort_order?: 'asc' | 'desc';
-    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => {
+    }): Promise<ApiResponse<PaginatedResponse<ProductComment>>> => {
       // Filter out 'all' status as it shouldn't be sent to the API
       const { status, ...otherParams } = params || {};
       const apiParams = {
@@ -31,11 +31,11 @@ export const commentsApi = {
       return axios.get('/admin/comments', { params: apiParams });
     },
 
-    getComment: (id: number): Promise<ApiResponse<Comment>> => axios.get(`/admin/comments/${id}`),
+    getComment: (id: number): Promise<ApiResponse<ProductComment>> => axios.get(`/admin/comments/${id}`),
 
-    approveComment: (id: number): Promise<ApiResponse<Comment>> => axios.patch(`/admin/comments/${id}/approve`),
+    approveComment: (id: number): Promise<ApiResponse<ProductComment>> => axios.patch(`/admin/comments/${id}/approve`),
 
-    rejectComment: (id: number): Promise<ApiResponse<Comment>> => axios.patch(`/admin/comments/${id}/reject`),
+    rejectComment: (id: number): Promise<ApiResponse<ProductComment>> => axios.patch(`/admin/comments/${id}/reject`),
 
     deleteComment: (id: number): Promise<ApiResponse<null>> => axios.delete(`/admin/comments/${id}`),
 

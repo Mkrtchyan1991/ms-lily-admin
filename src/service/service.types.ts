@@ -182,7 +182,7 @@ export interface ProductFilterParams {
 }
 // Add these types to your service.types.ts file
 
-export interface Comment {
+export interface ProductComment {
   id: number;
   content: string;
   status: 'pending' | 'approved' | 'rejected';
@@ -194,8 +194,6 @@ export interface Comment {
   product_id: number;
   created_at: string;
   updated_at: string;
-  // For backward compatibility
-  approved: boolean;
 }
 
 export interface CreateCommentRequest {
@@ -221,7 +219,7 @@ export interface ApiResponse<T> {
 export interface CommentFilters {
   page?: number;
   per_page?: number;
-  status?: Comment['status'] | 'all';
+  status?: ProductComment['status'] | 'all';
   search?: string;
   sort_by?: 'created_at' | 'updated_at' | 'id';
   sort_order?: 'asc' | 'desc';

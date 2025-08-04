@@ -7,6 +7,7 @@ import {
   CreateProductRequest,
   IProduct,
   PaginatedResponse,
+  ProductComment,
   ProductFilterParams,
   TagProps,
 } from '../service.types';
@@ -29,10 +30,10 @@ export const productsApi = {
     axios.get('/products/allProducts', { params }),
 
   // Comments
-  getProductComments: (productId: number): Promise<ApiResponse<PaginatedResponse<Comment>>> =>
+  getProductComments: (productId: number): Promise<ApiResponse<PaginatedResponse<ProductComment>>> =>
     axios.get(`/products/${productId}/comments`),
 
-  createComment: (productId: number, data: { content: string }): Promise<ApiResponse<Comment>> =>
+  createComment: (productId: number, data: { content: string }): Promise<ApiResponse<ProductComment>> =>
     axios.post(`/products/${productId}/comments`, data),
 
   // Admin product management

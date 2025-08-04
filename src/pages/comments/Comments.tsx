@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { commentsApi } from '@/service/comments/comments.api';
-import { Comment } from '@/service/service.types';
+import { Comment as ProductComment } from '@/service/service.types';
 import {
   CheckOutlined,
   CloseOutlined,
@@ -37,14 +37,14 @@ const { Title, Text, Paragraph } = Typography;
 const { Search } = Input;
 const { confirm } = Modal;
 
-interface CommentsTableData extends Comment {
+interface CommentsTableData extends ProductComment {
   key: string;
 }
 
-type StatusFilter = Comment['status'] | 'all';
+type StatusFilter = ProductComment['status'] | 'all';
 
 // Helper functions outside component
-const getStatusColor = (status: Comment['status']) => {
+const getStatusColor = (status: ProductComment['status']) => {
   const statusColors = {
     approved: 'success',
     pending: 'warning',
@@ -53,12 +53,12 @@ const getStatusColor = (status: Comment['status']) => {
   return statusColors[status] || 'default';
 };
 
-const getStatusText = (status: Comment['status']) => {
+const getStatusText = (status: ProductComment['status']) => {
   return status.charAt(0).toUpperCase() + status.slice(1);
 };
 
 // User info component for better reusability
-const UserInfo: React.FC<{ user: Comment['user'] }> = ({ user }) => (
+const UserInfo: React.FC<{ user: ProductComment['user'] }> = ({ user }) => (
   <div className={styles.userInfo}>
     <Avatar size="small" icon={<UserOutlined />}>
       {user.name.charAt(0).toUpperCase()}
@@ -76,7 +76,7 @@ const UserInfo: React.FC<{ user: Comment['user'] }> = ({ user }) => (
 
 // Comment details modal component
 const CommentDetailsModal: React.FC<{
-  comment: Comment | null;
+  comment: ProductComment | null;
   open: boolean;
   onClose: () => void;
   onApprove?: (id: number) => void;
@@ -119,172 +119,116 @@ const CommentDetailsModal: React.FC<{
 
   return (
     <Modal title="Comment Details" open={open} onCancel={onClose} footer={footer} width={600}>
-      <div className={styles.commentDetails}>
-        <div className={styles.userSection}>
-          <Avatar size={48} icon={<UserOutlined />}>
-            {comment.user.name.charAt(0).toUpperCase()}
-          </Avatar>
-          <div className={styles.userInfo}>
-            <Title level={5}>
-              {comment.user.name} {comment.user.last_name}
-            </Title>
-            <Text type="secondary">{comment.user.email}</Text>
-            <br />
-            <Text type="secondary">ID: #{comment.user.id}</Text>
+      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+        <div>
+          <Text strong>User: </Text>
+          <UserInfo user={comment.user} />
+        </div>
+
+        {comment.product && (
+          <div>
+            <Text strong>Product: </Text>
+            <Text>{comment.product.name}</Text>
           </div>
+        )}
+
+        <div>
+          <Text strong>Status: </Text>
+          <Tag color={getStatusColor(comment.status)}>{getStatusText(comment.status)}</Tag>
         </div>
 
-        <div className={styles.commentSection}>
-          <Title level={5}>Comment Content</Title>
-          <Paragraph className={styles.content}>{comment.content}</Paragraph>
+        <div>
+          <Text strong>Posted: </Text>
+          <Text>{dayjs(comment.created_at).format('YYYY-MM-DD HH:mm:ss')}</Text>
         </div>
 
-        <div className={styles.metaSection}>
-          <Space direction="vertical" size="small" style={{ width: '100%' }}>
-            <div>
-              <Text strong>Product ID: </Text>
-              <Text>#{comment.product_id}</Text>
-            </div>
-            <div>
-              <Text strong>Status: </Text>
-              <Tag color={getStatusColor(comment.status)}>{getStatusText(comment.status)}</Tag>
-            </div>
-            <div>
-              <Text strong>Created: </Text>
-              <Text>{dayjs(comment.created_at).format('YYYY-MM-DD HH:mm:ss')}</Text>
-            </div>
-            {comment.updated_at && (
-              <div>
-                <Text strong>Updated: </Text>
-                <Text>{dayjs(comment.updated_at).format('YYYY-MM-DD HH:mm:ss')}</Text>
-              </div>
-            )}
-          </Space>
+        <div>
+          <Text strong>Content:</Text>
+          <Paragraph style={{ marginTop: 8, padding: 12, background: '#f5f5f5', borderRadius: 6 }}>
+            {comment.content}
+          </Paragraph>
         </div>
-      </div>
+      </Space>
     </Modal>
   );
 };
 
-export const Comments: React.FC = () => {
+export const CommentsPage: React.FC = () => {
   const { message } = App.useApp();
-
-  // State management
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<ProductComment[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedComment, setSelectedComment] = useState<Comment | null>(null);
-  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
-
-  // Pagination and filters
+  const [totalComments, setTotalComments] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [total, setTotal] = useState(0);
+  const [selectedComment, setSelectedComment] = useState<ProductComment | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('pending');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
-  // Fetch comments function
-  const fetchComments = async (
-    page: number = currentPage,
-    perPage: number = pageSize,
-    status: StatusFilter = statusFilter,
-    search: string = searchText,
-  ) => {
+  const fetchComments = async (page = 1, status: StatusFilter = 'all', search = '') => {
     try {
       setLoading(true);
-
-      const response = await commentsApi.admin.getAllComments({
+      const params = {
         page,
-        per_page: perPage,
-        status: status === 'all' ? undefined : status,
-        search,
-        sort_by: 'created_at',
-        sort_order: 'desc',
-      });
+        per_page: pageSize,
+        ...(status !== 'all' && { status }),
+        ...(search && { search }),
+        sort_by: 'created_at' as const,
+        sort_order: 'desc' as const,
+      };
 
+      const response = await commentsApi.admin.getAllComments(params);
       if (response.data) {
         setComments(response.data.data);
-        setTotal(response.data.total);
+        setTotalComments(response.data.total);
       }
     } catch (error) {
       console.error('Failed to fetch comments:', error);
-      message.error('Failed to load comments');
+      message.error('Failed to fetch comments');
     } finally {
       setLoading(false);
     }
   };
 
-  // Load comments on mount and when filters change
   useEffect(() => {
-    fetchComments(currentPage, pageSize, statusFilter, searchText);
-  }, [currentPage, pageSize, statusFilter]);
+    fetchComments(currentPage, statusFilter, searchText);
+  }, [currentPage, statusFilter, searchText, pageSize]);
 
-  // Action handlers
-  const handleApprove = async (commentId: number) => {
+  const handleApprove = async (id: number) => {
     try {
-      // Optimistic update
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === commentId ? { ...comment, status: 'approved' as Comment['status'] } : comment,
-        ),
-      );
-
-      await commentsApi.admin.approveComment(commentId);
+      await commentsApi.admin.approveComment(id);
       message.success('Comment approved successfully');
-
-      // Remove from view if filtering by pending
-      if (statusFilter === 'pending') {
-        setComments((prev) => prev.filter((comment) => comment.id !== commentId));
-        setTotal((prev) => Math.max(0, prev - 1));
-      }
+      fetchComments(currentPage, statusFilter, searchText);
     } catch (error) {
       console.error('Failed to approve comment:', error);
       message.error('Failed to approve comment');
-      // Refresh on error
-      fetchComments();
     }
   };
 
-  const handleReject = async (commentId: number) => {
+  const handleReject = async (id: number) => {
     try {
-      // Optimistic update
-      setComments((prev) =>
-        prev.map((comment) =>
-          comment.id === commentId ? { ...comment, status: 'rejected' as Comment['status'] } : comment,
-        ),
-      );
-
-      await commentsApi.admin.rejectComment(commentId);
+      await commentsApi.admin.rejectComment(id);
       message.success('Comment rejected successfully');
-
-      // Remove from view if filtering by pending
-      if (statusFilter === 'pending') {
-        setComments((prev) => prev.filter((comment) => comment.id !== commentId));
-        setTotal((prev) => Math.max(0, prev - 1));
-      }
+      fetchComments(currentPage, statusFilter, searchText);
     } catch (error) {
       console.error('Failed to reject comment:', error);
       message.error('Failed to reject comment');
-      // Refresh on error
-      fetchComments();
     }
   };
 
-  const handleDelete = (commentId: number) => {
+  const handleDelete = async (id: number) => {
     confirm({
-      title: 'Delete Comment',
+      title: 'Are you sure you want to delete this comment?',
       icon: <ExclamationCircleOutlined />,
-      content: 'Are you sure you want to delete this comment? This action cannot be undone.',
-      okText: 'Delete',
+      content: 'This action cannot be undone.',
+      okText: 'Yes, Delete',
       okType: 'danger',
       cancelText: 'Cancel',
       onOk: async () => {
         try {
-          await commentsApi.admin.deleteComment(commentId);
+          await commentsApi.admin.deleteComment(id);
           message.success('Comment deleted successfully');
-
-          // Remove from current view
-          setComments((prev) => prev.filter((comment) => comment.id !== commentId));
-          setTotal((prev) => Math.max(0, prev - 1));
+          fetchComments(currentPage, statusFilter, searchText);
         } catch (error) {
           console.error('Failed to delete comment:', error);
           message.error('Failed to delete comment');
@@ -293,19 +237,9 @@ export const Comments: React.FC = () => {
     });
   };
 
-  const handleView = (comment: Comment) => {
-    setSelectedComment(comment);
-    setDetailsModalOpen(true);
-  };
-
-  const handleRefresh = () => {
-    fetchComments();
-  };
-
   const handleSearch = (value: string) => {
     setSearchText(value);
     setCurrentPage(1);
-    fetchComments(1, pageSize, statusFilter, value);
   };
 
   const handleStatusFilterChange = (value: StatusFilter) => {
@@ -313,81 +247,67 @@ export const Comments: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const handlePaginationChange = (page: number, size?: number) => {
-    setCurrentPage(page);
-    if (size && size !== pageSize) {
-      setPageSize(size);
-    }
+  const showCommentDetails = (comment: ProductComment) => {
+    setSelectedComment(comment);
+    setDetailsModalOpen(true);
   };
 
-  // Table columns configuration
   const columns: ColumnsType<CommentsTableData> = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
-      sorter: (a, b) => a.id - b.id,
-    },
-    {
       title: 'User',
+      dataIndex: 'user',
       key: 'user',
+      render: (user: ProductComment['user']) => <UserInfo user={user} />,
       width: 200,
-      render: (_, record) => <UserInfo user={record.user} />,
     },
     {
-      title: 'Comment',
+      title: 'Product',
+      dataIndex: 'product',
+      key: 'product',
+      render: (product: ProductComment['product']) => <Text>{product?.name || 'N/A'}</Text>,
+      width: 150,
+    },
+    {
+      title: 'Content',
       dataIndex: 'content',
       key: 'content',
-      ellipsis: {
-        showTitle: false,
-      },
       render: (content: string) => (
-        <Tooltip title={content}>
-          <Text ellipsis style={{ maxWidth: 300 }}>
-            {content}
-          </Text>
-        </Tooltip>
+        <Text ellipsis={{ tooltip: content }} style={{ maxWidth: 300 }}>
+          {content}
+        </Text>
       ),
-    },
-    {
-      title: 'Product ID',
-      dataIndex: 'product_id',
-      key: 'product_id',
-      width: 100,
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
-      width: 120,
-      render: (status: Comment['status']) => <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>,
+      render: (status: ProductComment['status']) => <Tag color={getStatusColor(status)}>{getStatusText(status)}</Tag>,
+      width: 100,
     },
     {
       title: 'Date',
       dataIndex: 'created_at',
       key: 'created_at',
-      width: 150,
       render: (date: string) => (
-        <Tooltip title={dayjs(date).format('YYYY-MM-DD HH:mm:ss')}>{dayjs(date).format('MMM DD, YYYY')}</Tooltip>
+        <Tooltip title={dayjs(date).format('YYYY-MM-DD HH:mm:ss')}>
+          <Text>{dayjs(date).format('MM/DD HH:mm')}</Text>
+        </Tooltip>
       ),
-      sorter: (a, b) => dayjs(a.created_at).unix() - dayjs(b.created_at).unix(),
+      width: 120,
     },
     {
       title: 'Actions',
       key: 'actions',
-      width: 200,
-      render: (_, record) => (
+      render: (_, record: CommentsTableData) => (
         <Space size="small">
           <Tooltip title="View Details">
-            <Button type="text" size="small" icon={<EyeOutlined />} onClick={() => handleView(record)} />
+            <Button type="text" icon={<EyeOutlined />} onClick={() => showCommentDetails(record)} />
           </Tooltip>
           {record.status === 'pending' && (
             <>
               <Tooltip title="Approve">
                 <Button
                   type="text"
-                  size="small"
                   icon={<CheckOutlined />}
                   onClick={() => handleApprove(record.id)}
                   style={{ color: '#52c41a' }}
@@ -396,7 +316,6 @@ export const Comments: React.FC = () => {
               <Tooltip title="Reject">
                 <Button
                   type="text"
-                  size="small"
                   icon={<CloseOutlined />}
                   onClick={() => handleReject(record.id)}
                   style={{ color: '#ff4d4f' }}
@@ -405,14 +324,15 @@ export const Comments: React.FC = () => {
             </>
           )}
           <Tooltip title="Delete">
-            <Button type="text" size="small" icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} danger />
+            <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
           </Tooltip>
         </Space>
       ),
+      width: 150,
+      fixed: 'right',
     },
   ];
 
-  // Transform comments to table data
   const tableData: CommentsTableData[] = comments.map((comment) => ({
     ...comment,
     key: comment.id.toString(),
@@ -422,77 +342,80 @@ export const Comments: React.FC = () => {
     <div className={styles.container}>
       <Card>
         <div className={styles.header}>
-          <Title level={3}>Comments Management</Title>
-          <Space>
-            <Button icon={<ReloadOutlined />} onClick={handleRefresh} loading={loading}>
-              Refresh
-            </Button>
-          </Space>
+          <Title level={2}>Comments Management</Title>
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => fetchComments(currentPage, statusFilter, searchText)}
+            loading={loading}
+          >
+            Refresh
+          </Button>
         </div>
 
         <div className={styles.filters}>
-          <Space size="middle" wrap>
+          <Space size="large">
             <Search
-              placeholder="Search comments, users, or IDs..."
+              placeholder="Search comments..."
               allowClear
-              style={{ width: 300 }}
               onSearch={handleSearch}
+              style={{ width: 300 }}
               prefix={<SearchOutlined />}
             />
             <Select
+              placeholder="Filter by status"
               value={statusFilter}
               onChange={handleStatusFilterChange}
               style={{ width: 150 }}
-              options={[
-                { value: 'all', label: 'All Status' },
-                { value: 'pending', label: 'Pending' },
-                { value: 'approved', label: 'Approved' },
-                { value: 'rejected', label: 'Rejected' },
-              ]}
-            />
+            >
+              <Select.Option value="all">All Status</Select.Option>
+              <Select.Option value="pending">Pending</Select.Option>
+              <Select.Option value="approved">Approved</Select.Option>
+              <Select.Option value="rejected">Rejected</Select.Option>
+            </Select>
           </Space>
         </div>
 
-        <div className={styles.tableContainer}>
-          {loading ? (
-            <div className={styles.loading}>
-              <Spin size="large" />
-            </div>
-          ) : comments.length === 0 ? (
-            <Empty description="No comments found" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-          ) : (
-            <>
-              <Table
-                columns={columns}
-                dataSource={tableData}
-                pagination={false}
-                size="middle"
-                className={styles.table}
-              />
-              <div className={styles.pagination}>
-                <Pagination
-                  current={currentPage}
-                  total={total}
-                  pageSize={pageSize}
-                  showSizeChanger
-                  showQuickJumper
-                  showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} comments`}
-                  onChange={handlePaginationChange}
-                  onShowSizeChange={handlePaginationChange}
-                />
-              </div>
-            </>
-          )}
+        <Table
+          columns={columns}
+          dataSource={tableData}
+          loading={loading}
+          pagination={false}
+          scroll={{ x: 1000 }}
+          locale={{
+            emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No comments found" />,
+          }}
+        />
+
+        <div className={styles.pagination}>
+          <Pagination
+            current={currentPage}
+            total={totalComments}
+            pageSize={pageSize}
+            showSizeChanger
+            showQuickJumper
+            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} comments`}
+            onChange={(page, size) => {
+              setCurrentPage(page);
+              if (size !== pageSize) {
+                setPageSize(size);
+              }
+            }}
+          />
         </div>
       </Card>
 
       <CommentDetailsModal
         comment={selectedComment}
         open={detailsModalOpen}
-        onClose={() => setDetailsModalOpen(false)}
+        onClose={() => {
+          setDetailsModalOpen(false);
+          setSelectedComment(null);
+        }}
         onApprove={handleApprove}
         onReject={handleReject}
       />
     </div>
   );
 };
+
+export default CommentsPage;
