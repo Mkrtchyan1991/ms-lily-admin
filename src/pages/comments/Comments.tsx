@@ -7,7 +7,7 @@ import { App, Button, Card, Col, Empty, Input, Row, Select, Statistic, Table, Ty
 import styles from './comments.module.scss';
 
 import { createCommentsColumns } from './comments.utils';
-import { CommentDetailsModal } from './components/comment-details/CommentDetais';
+import { CommentDetails } from './components/comment-details/CommentDetails';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -247,7 +247,7 @@ export const CommentsPage = () => {
       </Card>
 
       {/* Comment Details Modal */}
-      <CommentDetailsModal
+      <CommentDetails
         open={isDetailsModalOpen}
         comment={selectedComment}
         onClose={() => {

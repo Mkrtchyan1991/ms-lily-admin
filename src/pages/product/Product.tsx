@@ -134,7 +134,9 @@ export const ProductPage: React.FC = () => {
                 avatar={<Avatar>{item.user?.name?.[0] || 'U'}</Avatar>}
                 title={
                   <Space>
-                    <Text>{item.user?.name}</Text>
+                    <Text>
+                      {item.user?.name} {item.user.last_name}
+                    </Text>
                     <Text type="secondary">{dayjs(item.created_at).format('YYYY-MM-DD HH:mm')}</Text>
                   </Space>
                 }

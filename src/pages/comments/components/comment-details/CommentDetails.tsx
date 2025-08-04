@@ -35,13 +35,7 @@ const UserInfo: React.FC<{ user: ProductComment['user'] }> = ({ user }) => (
   </div>
 );
 
-export const CommentDetailsModal: React.FC<CommentDetailsModalProps> = ({
-  open,
-  comment,
-  onClose,
-  onApprove,
-  onReject,
-}) => {
+export const CommentDetails: React.FC<CommentDetailsModalProps> = ({ open, comment, onClose, onApprove, onReject }) => {
   if (!comment) return null;
 
   const footer = [
