@@ -95,9 +95,9 @@ export const Users: React.FC = () => {
     });
   };
 
-  const handleRoleChange = async (userId: number, newRole: 'admin' | 'user') => {
+  const handleRoleChange = async (user: User, newRole: User['role']) => {
     try {
-      // await usersApi.updateUser(userId, newRole);
+      await usersApi.admin.updateUser(user.id, { ...user, role: newRole });
       message.success('User role updated successfully');
       fetchUsers(currentPage, pageSize, roleFilter);
     } catch (error) {
@@ -190,7 +190,7 @@ export const Users: React.FC = () => {
           value={role}
           style={{ width: 100 }}
           size="small"
-          onChange={(newRole) => handleRoleChange(record.id, newRole)}
+          onChange={(newRole) => handleRoleChange(record, newRole)}
         >
           <Option value="user">User</Option>
           <Option value="admin">Admin</Option>
