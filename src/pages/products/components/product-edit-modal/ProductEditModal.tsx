@@ -203,7 +203,7 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
   };
 
   return (
-    <Modal title="Edit Product" open={open} onCancel={handleCancel} footer={null} width={800} destroyOnClose>
+    <Modal title="Edit Product" open={open} onCancel={handleCancel} footer={null} width={800} destroyOnHidden>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <Row gutter={16}>
           <Col span={12}>
