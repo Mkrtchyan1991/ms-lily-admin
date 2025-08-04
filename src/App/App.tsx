@@ -3,7 +3,6 @@ import { Loading } from '@/components/loading/Loading';
 import { Header } from '@/layout/header/Header';
 import { Sidebar } from '@/layout/sidebar/Sidebar';
 import { CommentsPage } from '@/pages/comments/Comments';
-import { DashboardPage } from '@/pages/dashboard/Dashboard.page';
 import { LoginPage } from '@/pages/login/Login';
 import { Orders } from '@/pages/orders/Orders';
 import { ProductPage } from '@/pages/product/Product';
@@ -45,14 +44,13 @@ const App: React.FC = () => {
                 <Layout className={styles.wrapper}>
                   <Content className={styles.main}>
                     <Routes>
-                      <Route path="/" element={<DashboardPage />} />
-                      <Route path="/users" element={<Users />} />
                       <Route path="/orders" element={<Orders />} />
+                      <Route path="/users" element={<Users />} />
                       <Route path="/products" element={<Products />} />
                       <Route path="/products/:id" element={<ProductPage />} />
                       <Route path="/profile" element={<ProfilePage />} />
                       <Route path="/comments" element={<CommentsPage />} />
-                      <Route path="*" element={<Navigate to={'/'} />} />
+                      <Route path="*" element={<Navigate to={'/orders'} />} />
                     </Routes>
                   </Content>
                 </Layout>

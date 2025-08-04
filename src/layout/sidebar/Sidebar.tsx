@@ -18,10 +18,9 @@ const { Sider } = Layout;
 type MenuItem = Required<MenuProps>['items'][number];
 
 const items: MenuItem[] = [
-  { label: <NavLink to="/">Dashboard</NavLink>, key: '/', icon: <PieChartOutlined /> },
-  { label: <NavLink to="/users">Users</NavLink>, key: '/users', icon: <UserOutlined /> },
   { label: <NavLink to="/orders">Orders</NavLink>, key: '/orders', icon: <ShoppingCartOutlined /> },
   { label: <NavLink to="/products">Products</NavLink>, key: '/products', icon: <ShopOutlined /> },
+  { label: <NavLink to="/users">Users</NavLink>, key: '/users', icon: <UserOutlined /> },
   { label: <NavLink to="/comments">Comments</NavLink>, key: '/comments', icon: <CommentOutlined /> },
 ];
 
