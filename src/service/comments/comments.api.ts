@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { ApiResponse, Comment as ProductComment, CreateCommentRequest, PaginatedResponse } from '../service.types';
+import { ApiResponse, CreateCommentRequest, PaginatedResponse, ProductComment } from '../service.types';
 
 export const commentsApi = {
   // Public comment endpoints

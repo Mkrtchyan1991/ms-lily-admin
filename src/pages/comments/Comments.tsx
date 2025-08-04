@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { commentsApi } from '@/service/comments/comments.api';
-import { Comment as ProductComment } from '@/service/service.types';
+import { ProductComment } from '@/service/service.types';
 import {
   CheckOutlined,
   CloseOutlined,
