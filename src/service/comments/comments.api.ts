@@ -12,16 +12,24 @@ export const commentsApi = {
 
   // Admin comment management
   admin: {
-    getPendingComments: (params?: {
-      page?: number;
-      per_page?: number;
-    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => axios.get('/admin/comments/pending', { params }),
-
+    // Updated: Remove getPendingComments and use getAllComments with status filter
     getAllComments: (params?: {
       page?: number;
       per_page?: number;
-      status?: Comment['status'];
-    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => axios.get('/admin/comments', { params }),
+      status?: Comment['status'] | 'all';
+      search?: string;
+      sort_by?: 'created_at' | 'updated_at' | 'id';
+      sort_order?: 'asc' | 'desc';
+    }): Promise<ApiResponse<PaginatedResponse<Comment>>> => {
+      // Filter out 'all' status as it shouldn't be sent to the API
+      const { status, ...otherParams } = params || {};
+      const apiParams = {
+        ...otherParams,
+        ...(status && status !== 'all' ? { status } : {}),
+      };
+
+      return axios.get('/admin/comments', { params: apiParams });
+    },
 
     getComment: (id: number): Promise<ApiResponse<Comment>> => axios.get(`/admin/comments/${id}`),
 
@@ -30,5 +38,9 @@ export const commentsApi = {
     rejectComment: (id: number): Promise<ApiResponse<Comment>> => axios.patch(`/admin/comments/${id}/reject`),
 
     deleteComment: (id: number): Promise<ApiResponse<null>> => axios.delete(`/admin/comments/${id}`),
+
+    // Additional utility method for batch operations
+    batchUpdateComments: (ids: number[], action: 'approve' | 'reject' | 'delete'): Promise<ApiResponse<null>> =>
+      axios.patch('/admin/comments/batch', { ids, action }),
   },
 };

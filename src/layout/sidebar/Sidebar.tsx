@@ -22,7 +22,7 @@ const items: MenuItem[] = [
   { label: <NavLink to="/users">Users</NavLink>, key: '/users', icon: <UserOutlined /> },
   { label: <NavLink to="/orders">Orders</NavLink>, key: '/orders', icon: <ShoppingCartOutlined /> },
   { label: <NavLink to="/products">Products</NavLink>, key: '/products', icon: <ShopOutlined /> },
-  { label: <NavLink to="/Comments">Comments</NavLink>, key: '/comments', icon: <CommentOutlined /> },
+  { label: <NavLink to="/comments">Comments</NavLink>, key: '/comments', icon: <CommentOutlined /> },
 ];
 
 export const Sidebar = () => {
