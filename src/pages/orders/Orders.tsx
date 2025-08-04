@@ -56,7 +56,7 @@ export const Orders = () => {
       order.id.toString().includes(searchText) ||
       order.shipping_address.full_name.toLowerCase().includes(searchText.toLowerCase()) ||
       order.shipping_address.phone.includes(searchText) ||
-      order.items.some((item) => item.product_name.toLowerCase().includes(searchText.toLowerCase()));
+      order.items.some((item) => item?.product_name?.toLowerCase().includes(searchText.toLowerCase()));
 
     const matchesStatus = !statusFilter || order.status === statusFilter;
 
