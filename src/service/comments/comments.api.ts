@@ -33,6 +33,11 @@ export const commentsApi = {
 
     getComment: (id: number): Promise<ApiResponse<ProductComment>> => axios.get(`/admin/comments/${id}`),
 
+    // Direct status update method (similar to orders)
+    updateCommentStatus: (id: number, status: ProductComment['status']): Promise<ApiResponse<ProductComment>> =>
+      axios.patch(`/admin/comments/${id}/status`, { status }),
+
+    // Existing specific approval/rejection methods (kept for backward compatibility)
     approveComment: (id: number): Promise<ApiResponse<ProductComment>> => axios.patch(`/admin/comments/${id}/approve`),
 
     rejectComment: (id: number): Promise<ApiResponse<ProductComment>> => axios.patch(`/admin/comments/${id}/reject`),

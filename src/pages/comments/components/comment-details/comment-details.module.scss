@@ -1,0 +1,246 @@
+.modal {
+  .ant-modal-content {
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .ant-modal-header {
+    border-bottom: 1px solid var(--ant-color-border);
+    padding: 20px 24px;
+  }
+
+  .ant-modal-body {
+    padding: 24px;
+  }
+
+  .ant-modal-footer {
+    border-top: 1px solid var(--ant-color-border);
+    padding: 16px 24px;
+  }
+}
+
+.modalTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .titleText {
+    margin: 0 !important;
+    color: var(--ant-color-text);
+    font-weight: 600;
+  }
+}
+
+.content {
+  width: 100%;
+}
+
+.section {
+  .sectionTitle {
+    margin-bottom: 12px !important;
+    color: var(--ant-color-text);
+    font-size: 16px;
+    font-weight: 600;
+  }
+}
+
+.infoCard {
+  background: var(--ant-color-fill-quaternary);
+  border: 1px solid var(--ant-color-border-secondary);
+  border-radius: 8px;
+
+  .ant-card-body {
+    padding: 16px;
+  }
+
+  &:hover {
+    border-color: var(--ant-color-border);
+    transition: border-color 0.3s ease;
+  }
+}
+
+.commentCard {
+  background: var(--ant-color-bg-container);
+  border: 1px solid var(--ant-color-border);
+  border-radius: 8px;
+
+  .ant-card-body {
+    padding: 16px;
+  }
+
+  &:hover {
+    box-shadow: var(--ant-box-shadow-sm);
+    transition: box-shadow 0.3s ease;
+  }
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  .avatar {
+    font-weight: 600;
+    background-color: var(--ant-color-primary);
+    color: var(--ant-color-white);
+  }
+
+  .userDetails {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .userName {
+      font-weight: 500;
+      font-size: 16px;
+      color: var(--ant-color-text);
+      margin: 0;
+    }
+
+    .userEmail {
+      font-size: 14px;
+      color: var(--ant-color-text-secondary);
+      margin: 0;
+    }
+  }
+}
+
+.productInfo {
+  width: 100%;
+
+  .ant-space-item {
+    width: 100%;
+  }
+}
+
+.commentContent {
+  margin: 0 !important;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ant-color-text);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+.metadata {
+  width: 100%;
+
+  .metadataRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 4px 0;
+
+    &:not(:last-child) {
+      border-bottom: 1px solid var(--ant-color-border-secondary);
+    }
+
+    .ant-typography {
+      margin: 0;
+    }
+
+    .ant-typography[class*='strong'] {
+      color: var(--ant-color-text);
+      font-weight: 500;
+    }
+
+    .ant-typography:not([class*='strong']) {
+      color: var(--ant-color-text-secondary);
+    }
+  }
+}
+
+// Dark theme specific adjustments
+:global(body[data-theme='dark']) {
+  .infoCard {
+    background: var(--ant-color-bg-elevated);
+    border-color: var(--ant-color-border);
+  }
+
+  .commentCard {
+    background: var(--ant-color-bg-elevated);
+    border-color: var(--ant-color-border);
+  }
+
+  .modalTitle .titleText {
+    color: var(--ant-color-text);
+  }
+
+  .sectionTitle {
+    color: var(--ant-color-text);
+  }
+
+  .userInfo {
+    .userName {
+      color: var(--ant-color-text);
+    }
+
+    .userEmail {
+      color: var(--ant-color-text-secondary);
+    }
+  }
+
+  .commentContent {
+    color: var(--ant-color-text);
+  }
+
+  .metadata .metadataRow {
+    border-bottom-color: var(--ant-color-border);
+
+    .ant-typography[class*='strong'] {
+      color: var(--ant-color-text);
+    }
+
+    .ant-typography:not([class*='strong']) {
+      color: var(--ant-color-text-secondary);
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .modal {
+    .ant-modal-content {
+      margin: 16px;
+      max-width: calc(100vw - 32px);
+    }
+
+    .ant-modal-body {
+      padding: 16px;
+    }
+
+    .ant-modal-header {
+      padding: 16px;
+    }
+
+    .ant-modal-footer {
+      padding: 12px 16px;
+    }
+  }
+
+  .userInfo {
+    gap: 8px;
+
+    .userDetails {
+      .userName {
+        font-size: 14px;
+      }
+
+      .userEmail {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .metadata .metadataRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 8px 0;
+  }
+
+  .sectionTitle {
+    font-size: 14px !important;
+  }
+}
