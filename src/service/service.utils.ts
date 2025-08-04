@@ -14,5 +14,5 @@ export const catchErrorMessage = (error: unknown) => {
 
 export const getFile = (filePath: string | null) => {
   if (!filePath) return '';
-  return baseURL + 'storage' + filePath;
+  return baseURL + '/storage/' + filePath;
 };
