@@ -39,12 +39,10 @@
 
           .name {
             font-weight: 500;
-            color: #262626;
           }
 
           .email {
             font-size: 12px;
-            color: #8c8c8c;
           }
         }
       }
@@ -63,7 +61,6 @@
       align-items: flex-start;
       gap: 16px;
       padding: 16px;
-      background-color: #fafafa;
       border-radius: 8px;
       margin-bottom: 24px;
 
@@ -72,7 +69,6 @@
 
         h5 {
           margin: 0 0 4px 0;
-          color: #262626;
         }
       }
     }
@@ -82,11 +78,9 @@
 
       h5 {
         margin-bottom: 12px;
-        color: #262626;
       }
 
       .content {
-        background-color: #f9f9f9;
         border: 1px solid #e8e8e8;
         border-radius: 8px;
         padding: 16px;
@@ -98,7 +92,6 @@
 
     .metaSection {
       padding: 16px;
-      background-color: #fafafa;
       border-radius: 8px;
 
       > div {
@@ -181,17 +174,13 @@
   .container {
     .commentDetails {
       .userSection {
-        background-color: #1f1f1f;
       }
 
       .commentSection .content {
-        background-color: #1f1f1f;
         border-color: #434343;
-        color: #fff;
       }
 
       .metaSection {
-        background-color: #1f1f1f;
       }
     }
   }
