@@ -186,11 +186,7 @@ export interface Comment {
   id: number;
   content: string;
   status: 'pending' | 'approved' | 'rejected';
-  user: {
-    id: number;
-    name: string;
-    email?: string;
-  };
+  user: User;
   product?: {
     id: number;
     name: string;

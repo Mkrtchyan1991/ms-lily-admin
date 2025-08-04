@@ -50,7 +50,6 @@ const App: React.FC = () => {
                       <Route path="/products" element={<Products />} />
                       <Route path="/profile" element={<ProfilePage />} />
                       <Route path="/comments" element={<Comments />} />
-                      {/* Add more protected routes here */}
                     </Routes>
                   </Content>
                 </Layout>
