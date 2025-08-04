@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router';
 import {
+  CommentOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
   PieChartOutlined,
@@ -21,7 +22,7 @@ const items: MenuItem[] = [
   { label: <NavLink to="/users">Users</NavLink>, key: '/users', icon: <UserOutlined /> },
   { label: <NavLink to="/orders">Orders</NavLink>, key: '/orders', icon: <ShoppingCartOutlined /> },
   { label: <NavLink to="/products">Products</NavLink>, key: '/products', icon: <ShopOutlined /> },
-  // getItem('Team', 'sub2', <TeamOutlined />, [getItem('Team 1', '6'), getItem('Team 2', '8')]),
+  { label: <NavLink to="/Comments">Comments</NavLink>, key: '/comments', icon: <CommentOutlined /> },
 ];
 
 export const Sidebar = () => {

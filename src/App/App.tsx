@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Loading } from '@/components/loading/Loading';
 import { Header } from '@/layout/header/Header';
 import { Sidebar } from '@/layout/sidebar/Sidebar';
+import { Comments } from '@/pages/comments/Comments';
 import { DashboardPage } from '@/pages/dashboard/Dashboard.page';
 import { LoginPage } from '@/pages/login/Login';
 import { Orders } from '@/pages/orders/Orders';
@@ -48,6 +49,7 @@ const App: React.FC = () => {
                       <Route path="/orders" element={<Orders />} />
                       <Route path="/products" element={<Products />} />
                       <Route path="/profile" element={<ProfilePage />} />
+                      <Route path="/comments" element={<Comments />} />
                       {/* Add more protected routes here */}
                     </Routes>
                   </Content>

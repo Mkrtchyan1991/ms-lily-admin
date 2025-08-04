@@ -1,4 +1,4 @@
-import { baseURL } from '@/configs/axios.config';
+import { storageBaseURL } from '@/configs/axios.config';
 
 // Define error type for better type safety
 export interface ApiError {
@@ -14,5 +14,5 @@ export const catchErrorMessage = (error: unknown) => {
 
 export const getFile = (filePath: string | null) => {
   if (!filePath) return '';
-  return baseURL + '/storage/' + filePath;
+  return storageBaseURL + '/' + filePath;
 };
