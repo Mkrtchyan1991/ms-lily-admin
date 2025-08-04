@@ -110,14 +110,23 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
       formData.append('brand_id', data.brand_id.toString());
       formData.append('color', data.color || '');
       formData.append('size', data.size || '');
+
       if (data.tags && data.tags.length > 0) {
         data.tags.forEach((tag, index) => {
           formData.append(`tags[${index}]`, tag.toString());
         });
       }
+
+      // Handle image logic
       if (imageFile) {
+        // New image uploaded - use it
         formData.append('image', imageFile);
+      } else if (!imagePreview) {
+        // No preview means user wants to delete the image
+        formData.append('delete_image', 'true');
       }
+      // If imagePreview exists but no new imageFile, keep existing image (do nothing)
+
       await productsApi.admin.updateProduct(product.id, formData);
       message.success('Product updated successfully');
       onClose();
