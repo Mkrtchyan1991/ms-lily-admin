@@ -424,7 +424,15 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
             name="tags"
             control={control}
             render={({ field }) => (
-              <Select {...field} mode="multiple" placeholder="Select tags (optional)" style={{ width: '100%' }}>
+              <Select
+                {...field}
+                mode="multiple"
+                placeholder="Select tags (optional)"
+                allowClear
+                style={{ width: '100%' }}
+                value={field.value || []}
+                onChange={(value) => field.onChange(value)}
+              >
                 {tags.map((tag) => (
                   <Option key={tag.id} value={tag.id}>
                     {tag.name}
