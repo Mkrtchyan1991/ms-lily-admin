@@ -2,7 +2,11 @@ import React, { useEffect } from 'react';
 import { RegisterRequest, User } from '@/service/service.types';
 import { catchErrorMessage } from '@/service/service.utils';
 import { usersApi } from '@/service/users/users.api';
+import { selectAuthUser } from '@/store/auth/auth.selectors';
+import { setUser } from '@/store/auth/auth.slice';
+import { AppDispatch } from '@/store/store';
 import { Controller, useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   GlobalOutlined,
   HomeOutlined,
@@ -39,6 +43,8 @@ interface UserEditModalProps {
 
 export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onSuccess, user }) => {
   const { message } = App.useApp();
+  const dispatch = useDispatch<AppDispatch>();
+  const authUser = useSelector(selectAuthUser);
 
   const {
     control,
@@ -105,7 +111,14 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
         updateData.password_confirmation = data.password_confirmation;
       }
 
-      await usersApi.admin.updateUser(user.id, updateData);
+      const response = await usersApi.admin.updateUser(user.id, updateData);
+      const updatedUser = response.data.data;
+
+      // If the edited user is the current authenticated user, update auth state
+      if (authUser?.id === updatedUser.id) {
+        dispatch(setUser(updatedUser));
+      }
+
       message.success('User updated successfully');
       onClose();
       onSuccess?.();

@@ -66,7 +66,7 @@ export const ProfilePage: React.FC = () => {
       const response = await authApi.updateProfile(updateData);
 
       // Update user in Redux store
-      dispatch(setUser(response.data));
+      dispatch(setUser(response.data.data));
 
       message.success('Profile updated successfully');
 
