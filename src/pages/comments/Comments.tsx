@@ -17,14 +17,14 @@ interface CommentsTableData extends ProductComment {
   key: string;
 }
 
-type StatusFilter = ProductComment['status'] | 'all';
+type StatusFilter = ProductComment['status'] | null;
 
 export const CommentsPage = () => {
   const { message, modal } = App.useApp();
   const [comments, setComments] = useState<ProductComment[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(null);
   const [selectedComment, setSelectedComment] = useState<ProductComment | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
@@ -36,21 +36,18 @@ export const CommentsPage = () => {
       const params = {
         page: pagination.current,
         per_page: pagination.pageSize,
-        ...(statusFilter !== 'all' && { status: statusFilter }),
+        status: statusFilter,
         ...(searchText && { search: searchText }),
         sort_by: 'created_at' as const,
         sort_order: 'desc' as const,
       };
+      console.log(params);
 
       const response = await commentsApi.admin.getAllComments(params);
 
       if (response.data) {
         setComments(response.data.data);
-        setPagination({
-          current: response.data.current_page,
-          pageSize: response.data.per_page,
-          total: response.data.total,
-        });
+        setPagination((prev) => ({ ...prev, total: response.data.total }));
       }
     } catch (error) {
       console.error('Failed to fetch comments:', error);
@@ -63,21 +60,6 @@ export const CommentsPage = () => {
   useEffect(() => {
     fetchComments();
   }, [pagination.current, pagination.pageSize, statusFilter, searchText]);
-
-  // Filter comments based on search text and status
-  const filteredComments = comments.filter((comment) => {
-    const matchesSearch =
-      searchText === '' ||
-      comment.id.toString()?.includes(searchText) ||
-      comment.content?.toLowerCase()?.includes(searchText?.toLowerCase()) ||
-      comment.user.name?.toLowerCase()?.includes(searchText?.toLowerCase()) ||
-      comment.user.email?.toLowerCase()?.includes(searchText?.toLowerCase()) ||
-      (comment.product?.name && comment.product.name?.toLowerCase()?.includes(searchText?.toLowerCase()));
-
-    const matchesStatus = statusFilter === 'all' || comment.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
 
   const handleView = (comment: ProductComment) => {
     setSelectedComment(comment);
@@ -148,10 +130,7 @@ export const CommentsPage = () => {
     handleDelete,
   });
 
-  const tableData: CommentsTableData[] = filteredComments.map((comment) => ({
-    ...comment,
-    key: comment.id.toString(),
-  }));
+  const tableData: CommentsTableData[] = comments.map((comment) => ({ ...comment, key: comment.id.toString() }));
 
   return (
     <div className={styles.container}>
@@ -213,7 +192,6 @@ export const CommentsPage = () => {
                 value={statusFilter}
                 onChange={setStatusFilter}
               >
-                <Option value="all">All Status</Option>
                 <Option value="pending">Pending</Option>
                 <Option value="approved">Approved</Option>
                 <Option value="rejected">Rejected</Option>

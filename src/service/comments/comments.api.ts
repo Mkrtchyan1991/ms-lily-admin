@@ -19,7 +19,7 @@ export const commentsApi = {
     getAllComments: (params?: {
       page?: number;
       per_page?: number;
-      status?: ProductComment['status'] | 'all';
+      status?: ProductComment['status'] | null;
       search?: string;
       sort_by?: 'created_at' | 'updated_at' | 'id';
       sort_order?: 'asc' | 'desc';
@@ -28,7 +28,7 @@ export const commentsApi = {
       const { status, ...otherParams } = params || {};
       const apiParams = {
         ...otherParams,
-        ...(status && status !== 'all' ? { status } : {}),
+        ...(status ? { status } : { status: 'all' }),
       };
 
       return axios.get('/admin/comments', { params: apiParams });
