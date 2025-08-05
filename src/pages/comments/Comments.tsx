@@ -68,11 +68,11 @@ export const CommentsPage = () => {
   const filteredComments = comments.filter((comment) => {
     const matchesSearch =
       searchText === '' ||
-      comment.id.toString().includes(searchText) ||
-      comment.content?.toLowerCase().includes(searchText?.toLowerCase()) ||
-      comment.user.name?.toLowerCase().includes(searchText?.toLowerCase()) ||
-      comment.user.email?.toLowerCase().includes(searchText?.toLowerCase()) ||
-      (comment.product?.name && comment.product.name?.toLowerCase().includes(searchText?.toLowerCase()));
+      comment.id.toString()?.includes(searchText) ||
+      comment.content?.toLowerCase()?.includes(searchText?.toLowerCase()) ||
+      comment.user.name?.toLowerCase()?.includes(searchText?.toLowerCase()) ||
+      comment.user.email?.toLowerCase()?.includes(searchText?.toLowerCase()) ||
+      (comment.product?.name && comment.product.name?.toLowerCase()?.includes(searchText?.toLowerCase()));
 
     const matchesStatus = statusFilter === 'all' || comment.status === statusFilter;
 

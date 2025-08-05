@@ -127,10 +127,10 @@ export const Users: React.FC = () => {
       const searchLower = searchText?.toLowerCase();
       filtered = users.filter(
         (user) =>
-          user.name?.toLowerCase().includes(searchLower) ||
-          user.last_name?.toLowerCase().includes(searchLower) ||
-          user.email?.toLowerCase().includes(searchLower) ||
-          user.mobile_number.includes(searchText),
+          user.name?.toLowerCase()?.includes(searchLower) ||
+          user.last_name?.toLowerCase()?.includes(searchLower) ||
+          user.email?.toLowerCase()?.includes(searchLower) ||
+          user.mobile_number?.includes(searchText),
       );
     }
 

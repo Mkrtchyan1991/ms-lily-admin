@@ -95,8 +95,8 @@ export const Products = () => {
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       searchText === '' ||
-      product.name?.toLowerCase().includes(searchText?.toLowerCase()) ||
-      product.description?.toLowerCase().includes(searchText?.toLowerCase());
+      product.name?.toLowerCase()?.includes(searchText?.toLowerCase()) ||
+      product.description?.toLowerCase()?.includes(searchText?.toLowerCase());
 
     return matchesSearch;
   });
