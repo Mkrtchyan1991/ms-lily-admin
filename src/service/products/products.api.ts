@@ -2,27 +2,18 @@ import axios from '@/configs/axios.config';
 
 import {
   ApiResponse,
-  BrandProps,
-  CategoryProps,
   CreateProductRequest,
+  FilterOptions,
   IProduct,
   PaginatedResponse,
   ProductComment,
   ProductFilterParams,
-  TagProps,
 } from '../service.types';
-
-// New interface for filter options response
-export interface FilterOptionsResponse {
-  categories: CategoryProps[];
-  brands: BrandProps[];
-  tags: TagProps[];
-}
 
 export const productsApi = {
   getProduct: (id: number): Promise<ApiResponse<IProduct>> => axios.get(`/products/${id}`),
 
-  getFilterOptions: (category?: string): Promise<ApiResponse<FilterOptionsResponse>> =>
+  getFilterOptions: (category?: string): Promise<ApiResponse<FilterOptions>> =>
     axios.get('/products/filter-options', { params: { category } }),
 
   // Enhanced getAllProducts to handle filtering

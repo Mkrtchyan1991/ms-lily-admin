@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { productsApi } from '@/service/products/products.api';
-import { BrandProps, CategoryProps, IProduct, ProductFilterParams, TagProps } from '@/service/service.types';
+import { IProduct, ProductFilterParams } from '@/service/service.types';
+import { selectBrands, selectCategories, selectCommonError, selectTags } from '@/store/common/common.selectors';
+import { fetchFilterOptions } from '@/store/common/common.slice';
+import { AppDispatch } from '@/store/store';
+import { useDispatch, useSelector } from 'react-redux';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { App, Button, Card, Col, Input, Row, Select, Table, Typography } from 'antd';
 
@@ -15,6 +19,7 @@ const { Search } = Input;
 const { Option } = Select;
 
 export const Products = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const { message } = App.useApp();
   const [products, setProducts] = useState<IProduct[]>([]);
   const [loading, setLoading] = useState(false);
@@ -22,9 +27,10 @@ export const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | undefined>();
   const [selectedBrand, setSelectedBrand] = useState<string | undefined>();
   const [selectedTag, setSelectedTag] = useState<string | undefined>();
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
-  const [brands, setBrands] = useState<BrandProps[]>([]);
-  const [tags, setTags] = useState<TagProps[]>([]);
+  const categories = useSelector(selectCategories);
+  const brands = useSelector(selectBrands);
+  const tags = useSelector(selectTags);
+  const commonError = useSelector(selectCommonError);
 
   // ✨ CHANGE: Unified modal state instead of separate create/edit modals
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,28 +67,13 @@ export const Products = () => {
     }
   };
 
-  // Fetch filter options from the new consolidated endpoint
-  const fetchFilterOptions = async () => {
-    try {
-      const response = await productsApi.getFilterOptions();
-      if (response.data) {
-        setCategories(response.data.categories);
-        setBrands(response.data.brands);
-        setTags(response.data.tags);
-      }
-    } catch (error) {
-      console.error('Failed to fetch filter options:', error);
-      message.error('Failed to load filter options');
-    }
-  };
-
   // Initialize data on component mount
   useEffect(() => {
     const initializePageData = async () => {
       setLoading(true);
       try {
         // Fetch products and filter options concurrently
-        await Promise.all([fetchProducts(), fetchFilterOptions()]);
+        await Promise.all([fetchProducts(), dispatch(fetchFilterOptions()).unwrap()]);
       } catch (error) {
         console.error('Failed to initialize page data:', error);
         message.error('Failed to load page data');
@@ -92,7 +83,13 @@ export const Products = () => {
     };
 
     initializePageData();
-  }, []);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (commonError) {
+      message.error(commonError);
+    }
+  }, [commonError, message]);
 
   // Filter products based on search text (client-side filtering)
   const filteredProducts = products.filter((product) => {
