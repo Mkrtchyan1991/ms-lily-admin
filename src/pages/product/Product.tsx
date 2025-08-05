@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { productsApi } from '@/service/products/products.api';
 import { IProduct, ProductComment } from '@/service/service.types';
 import { getFile } from '@/service/service.utils';
+import { formatDateTime } from '@/utils/date';
 import { useParams } from 'react-router';
 import { App, Avatar, Button, Card, Col, Form, Image, Input, List, Row, Space, Tag, Typography } from 'antd';
-import dayjs from 'dayjs';
 
 import styles from './product.module.scss';
 
@@ -137,7 +137,7 @@ export const ProductPage: React.FC = () => {
                     <Text>
                       {item.user?.name} {item.user.last_name}
                     </Text>
-                    <Text type="secondary">{dayjs(item.created_at).format('YYYY-MM-DD HH:mm')}</Text>
+                    <Text type="secondary">{formatDateTime(item.created_at)}</Text>
                   </Space>
                 }
                 description={item.content}

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { User } from '@/service/service.types';
 import { usersApi } from '@/service/users/users.api';
+import { formatDate } from '@/utils/date';
 import {
   DeleteOutlined,
   EditOutlined,
@@ -13,9 +14,8 @@ import {
   SearchOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { App, Avatar, Button, Empty, Input, Modal, Pagination, Select, Spin, Table, Tag, Typography } from 'antd';
+import { App, Avatar, Button, Input, Pagination, Select, Spin, Table, Tag, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
 
 import styles from './users.module.scss';
 
@@ -210,8 +210,8 @@ export const Users: React.FC = () => {
       title: 'Joined',
       dataIndex: 'created_at',
       key: 'created_at',
-      render: (date) => dayjs(date).format('MMM DD, YYYY'),
-      sorter: (a, b) => dayjs(a.created_at).unix() - dayjs(b.created_at).unix(),
+      render: (date) => formatDate(date, { dateStyle: 'medium' }),
+      sorter: (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     },
     {
       title: 'Actions',
