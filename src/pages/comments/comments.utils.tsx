@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { ProductComment } from '@/service/service.types';
 import { formatDate, formatDateTime, formatTime } from '@/utils/date';
 import {
@@ -5,6 +6,7 @@ import {
   ClockCircleOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
+  EditOutlined,
   EyeOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -63,6 +65,7 @@ const UserInfo: React.FC<{ user: ProductComment['user'] }> = ({ user }) => (
 
 interface CommentsColumnsProps {
   handleView: (comment: ProductComment) => void;
+  handleEdit: (comment: ProductComment) => void;
   handleStatusChange: (id: number, status: ProductComment['status']) => void;
   handleDelete: (id: number) => void;
 }
@@ -73,6 +76,7 @@ interface CommentsTableData extends ProductComment {
 
 export const createCommentsColumns = ({
   handleView,
+  handleEdit,
   handleStatusChange,
   handleDelete,
 }: CommentsColumnsProps): ColumnsType<CommentsTableData> => [
@@ -166,6 +170,9 @@ export const createCommentsColumns = ({
       <Space size="small">
         <Tooltip title="View Details">
           <Button type="text" icon={<EyeOutlined />} onClick={() => handleView(record)} size="small" />
+        </Tooltip>
+        <Tooltip title="Edit">
+          <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(record)} size="small" />
         </Tooltip>
         <Tooltip title="Delete">
           <Button type="text" danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} size="small" />

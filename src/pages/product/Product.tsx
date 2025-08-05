@@ -101,8 +101,6 @@ export const ProductPage: React.FC = () => {
     }
   };
 
-  console.log(authUser);
-
   return (
     <div className={styles.container}>
       <Card loading={loading} className={styles['product-card']}>
@@ -163,54 +161,51 @@ export const ProductPage: React.FC = () => {
           itemLayout="horizontal"
           dataSource={comments}
           locale={{ emptyText: 'No comments yet' }}
-          renderItem={(item) => {
-            // console.log(item);
-            return (
-              <List.Item
-                key={item.id}
-                actions={
-                  authUser && authUser.id === item.user.id
-                    ? editingCommentId === item.id
-                      ? [
-                          <Button type="link" onClick={handleUpdateComment} loading={updating}>
-                            Save
-                          </Button>,
-                          <Button type="link" onClick={cancelEditComment}>
-                            Cancel
-                          </Button>,
-                        ]
-                      : [
-                          <Button type="link" onClick={() => startEditComment(item)}>
-                            Edit
-                          </Button>,
-                        ]
-                    : undefined
+          renderItem={(item) => (
+            <List.Item
+              key={item.id}
+              actions={
+                authUser && authUser.id === item.user.id
+                  ? editingCommentId === item.id
+                    ? [
+                        <Button type="link" onClick={handleUpdateComment} loading={updating}>
+                          Save
+                        </Button>,
+                        <Button type="link" onClick={cancelEditComment}>
+                          Cancel
+                        </Button>,
+                      ]
+                    : [
+                        <Button type="link" onClick={() => startEditComment(item)}>
+                          Edit
+                        </Button>,
+                      ]
+                  : undefined
+              }
+            >
+              <List.Item.Meta
+                avatar={<Avatar>{item.user?.name?.[0] || 'U'}</Avatar>}
+                title={
+                  <Space>
+                    <Text>
+                      {item.user?.name} {item.user.last_name}
+                    </Text>
+                    <Text type="secondary">{formatDateTime(item.created_at)}</Text>
+                  </Space>
                 }
-              >
-                <List.Item.Meta
-                  avatar={<Avatar>{item.user?.name?.[0] || 'U'}</Avatar>}
-                  title={
-                    <Space>
-                      <Text>
-                        {item.user?.name} {item.user.last_name}
-                      </Text>
-                      <Text type="secondary">{formatDateTime(item.created_at)}</Text>
-                    </Space>
-                  }
-                  description={
-                    editingCommentId === item.id ? (
-                      <TextArea rows={2} value={editingContent} onChange={(e) => setEditingContent(e.target.value)} />
-                    ) : (
-                      item.content
-                    )
-                  }
-                />
-                <Tag color={item.status === 'approved' ? 'green' : item.status === 'rejected' ? 'red' : 'orange'}>
-                  {item.status}
-                </Tag>
-              </List.Item>
-            );
-          }}
+                description={
+                  editingCommentId === item.id ? (
+                    <TextArea rows={2} value={editingContent} onChange={(e) => setEditingContent(e.target.value)} />
+                  ) : (
+                    item.content
+                  )
+                }
+              />
+              <Tag color={item.status === 'approved' ? 'green' : item.status === 'rejected' ? 'red' : 'orange'}>
+                {item.status}
+              </Tag>
+            </List.Item>
+          )}
         />
       </Card>
     </div>

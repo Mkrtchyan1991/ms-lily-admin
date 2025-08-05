@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { commentsApi } from '@/service/comments/comments.api';
 import { ProductComment } from '@/service/service.types';
 import { ExclamationCircleOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
@@ -27,10 +27,11 @@ export const CommentsPage = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(null);
   const [selectedComment, setSelectedComment] = useState<ProductComment | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
 
   // Fetch comments from API
-  const fetchComments = async () => {
+  const fetchComments = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -55,14 +56,21 @@ export const CommentsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.current, pagination.pageSize, statusFilter, searchText, message]);
 
   useEffect(() => {
     fetchComments();
-  }, [pagination.current, pagination.pageSize, statusFilter, searchText]);
+  }, [fetchComments]);
 
   const handleView = (comment: ProductComment) => {
     setSelectedComment(comment);
+    setIsEditing(false);
+    setIsDetailsModalOpen(true);
+  };
+
+  const handleEdit = (comment: ProductComment) => {
+    setSelectedComment(comment);
+    setIsEditing(true);
     setIsDetailsModalOpen(true);
   };
 
@@ -115,6 +123,20 @@ export const CommentsPage = () => {
     });
   };
 
+  const handleUpdate = async (id: number, content: string) => {
+    try {
+      await commentsApi.updateComment(id, { content });
+      message.success('Comment updated successfully');
+      setComments((prev) => prev.map((c) => (c.id === id ? { ...c, content } : c)));
+      if (selectedComment && selectedComment.id === id) {
+        setSelectedComment({ ...selectedComment, content });
+      }
+    } catch (error) {
+      console.error('Failed to update comment:', error);
+      message.error('Failed to update comment');
+    }
+  };
+
   // Calculate statistics
   const stats = {
     total: comments.length,
@@ -126,6 +148,7 @@ export const CommentsPage = () => {
   // Create columns with handler functions
   const commentsColumns = createCommentsColumns({
     handleView,
+    handleEdit,
     handleStatusChange,
     handleDelete,
   });
@@ -228,12 +251,15 @@ export const CommentsPage = () => {
       <CommentDetails
         open={isDetailsModalOpen}
         comment={selectedComment}
+        editing={isEditing}
         onClose={() => {
           setIsDetailsModalOpen(false);
           setSelectedComment(null);
+          setIsEditing(false);
         }}
         onApprove={handleApprove}
         onReject={handleReject}
+        onUpdate={handleUpdate}
       />
     </div>
   );

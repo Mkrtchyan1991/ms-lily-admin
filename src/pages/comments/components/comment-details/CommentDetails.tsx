@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ProductComment } from '@/service/service.types';
 import { formatDateTime } from '@/utils/date';
 import { CheckOutlined, CloseOutlined, UserOutlined } from '@ant-design/icons';
-import { Avatar, Button, Card, Modal, Space, Tag, Typography } from 'antd';
+import { Avatar, Button, Card, Input, Modal, Space, Tag, Typography } from 'antd';
 
 import styles from './comment-details.module.scss';
 
 import { getStatusColor, getStatusText } from '../../comments.utils';
 
 const { Title, Text, Paragraph } = Typography;
+const { TextArea } = Input;
 
 interface CommentDetailsModalProps {
   open: boolean;
@@ -16,6 +17,8 @@ interface CommentDetailsModalProps {
   onClose: () => void;
   onApprove?: (id: number) => void;
   onReject?: (id: number) => void;
+  onUpdate?: (id: number, content: string) => Promise<void>;
+  editing?: boolean;
 }
 
 // User info component for better reusability
@@ -35,40 +38,91 @@ const UserInfo: React.FC<{ user: ProductComment['user'] }> = ({ user }) => (
   </div>
 );
 
-export const CommentDetails: React.FC<CommentDetailsModalProps> = ({ open, comment, onClose, onApprove, onReject }) => {
+export const CommentDetails: React.FC<CommentDetailsModalProps> = ({
+  open,
+  comment,
+  onClose,
+  onApprove,
+  onReject,
+  onUpdate,
+  editing,
+}) => {
+  const [isEditing, setIsEditing] = useState(editing || false);
+  const [content, setContent] = useState(comment?.content || '');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setIsEditing(editing || false);
+    setContent(comment?.content || '');
+  }, [comment, editing]);
+
   if (!comment) return null;
 
-  const footer = [
+  const handleSave = async () => {
+    if (!comment) return;
+    try {
+      setSaving(true);
+      await onUpdate?.(comment.id, content);
+      setIsEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const footer: React.ReactNode[] = [
     <Button key="close" onClick={onClose}>
       Close
     </Button>,
   ];
 
-  if (comment.status === 'pending') {
+  if (isEditing) {
     footer.push(
       <Button
-        key="approve"
-        type="primary"
-        icon={<CheckOutlined />}
+        key="cancel"
         onClick={() => {
-          onApprove?.(comment.id);
-          onClose();
+          setIsEditing(false);
+          setContent(comment.content);
         }}
       >
-        Approve
+        Cancel
       </Button>,
-      <Button
-        key="reject"
-        danger
-        icon={<CloseOutlined />}
-        onClick={() => {
-          onReject?.(comment.id);
-          onClose();
-        }}
-      >
-        Reject
+      <Button key="save" type="primary" loading={saving} onClick={handleSave}>
+        Save
       </Button>,
     );
+  } else {
+    footer.push(
+      <Button key="edit" onClick={() => setIsEditing(true)}>
+        Edit
+      </Button>,
+    );
+
+    if (comment.status === 'pending') {
+      footer.push(
+        <Button
+          key="approve"
+          type="primary"
+          icon={<CheckOutlined />}
+          onClick={() => {
+            onApprove?.(comment.id);
+            onClose();
+          }}
+        >
+          Approve
+        </Button>,
+        <Button
+          key="reject"
+          danger
+          icon={<CloseOutlined />}
+          onClick={() => {
+            onReject?.(comment.id);
+            onClose();
+          }}
+        >
+          Reject
+        </Button>,
+      );
+    }
   }
 
   return (
@@ -125,7 +179,11 @@ export const CommentDetails: React.FC<CommentDetailsModalProps> = ({ open, comme
             Comment Content
           </Title>
           <Card size="small" className={styles.commentCard}>
-            <Paragraph className={styles.commentContent}>{comment.content}</Paragraph>
+            {isEditing ? (
+              <TextArea rows={4} value={content} onChange={(e) => setContent(e.target.value)} />
+            ) : (
+              <Paragraph className={styles.commentContent}>{comment.content}</Paragraph>
+            )}
           </Card>
         </div>
 
