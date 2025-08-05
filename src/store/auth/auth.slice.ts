@@ -52,7 +52,8 @@ export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWith
 export const fetchUser = createAsyncThunk('auth/fetchUser', async (_, { rejectWithValue }) => {
   try {
     const response = await authApi.getUser();
-    return response.data.data;
+    console.log(response);
+    return response.data;
   } catch (error) {
     return rejectWithValue(catchErrorMessage(error) || 'Failed to fetch user');
   }
