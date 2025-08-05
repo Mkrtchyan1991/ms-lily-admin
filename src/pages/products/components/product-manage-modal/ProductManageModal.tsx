@@ -15,22 +15,29 @@ interface ProductFormData {
   description: string;
   price: number;
   stock: number;
-  category_id: number;
-  brand_id: number;
+  category_id: number | undefined;
+  brand_id: number | undefined;
   size: string;
   color: string;
   tags: number[];
   image: File | null;
 }
 
-interface ProductEditProps {
+interface ProductManageModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  product: IProduct | null;
+  product?: IProduct | null; // Optional - if provided, it's edit mode
+  mode?: 'create' | 'edit'; // Optional - can be inferred from product prop
 }
 
-export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, onSuccess, product }) => {
+export const ProductManageModal: React.FC<ProductManageModalProps> = ({
+  open,
+  onClose,
+  onSuccess,
+  product = null,
+  mode,
+}) => {
   const { message } = App.useApp();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -38,6 +45,11 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [tags, setTags] = useState<TagProps[]>([]);
+
+  // Determine if we're in edit mode
+  const isEditMode = mode === 'edit' || !!product;
+  const modalTitle = isEditMode ? 'Edit Product' : 'Create Product';
+  const submitButtonText = isEditMode ? 'Update Product' : 'Create Product';
 
   const {
     control,
@@ -51,8 +63,8 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
       description: '',
       price: 0,
       stock: 0,
-      category_id: 0,
-      brand_id: 0,
+      category_id: undefined, // Changed from 0 to undefined
+      brand_id: undefined, // Changed from 0 to undefined
       size: '',
       color: '',
       tags: [],
@@ -60,7 +72,7 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
     },
   });
 
-  // Load filter options on open
+  // Load filter options when modal opens
   useEffect(() => {
     const loadOptions = async () => {
       try {
@@ -74,43 +86,75 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
         message.error('Failed to load filter options');
       }
     };
-    if (open) loadOptions();
+
+    if (open) {
+      loadOptions();
+    }
   }, [open, message]);
 
-  // Reset form when product changes
+  // Reset form when modal opens or product changes
   useEffect(() => {
-    if (product && open) {
-      reset({
-        name: product.name,
-        description: product.description,
-        price: parseFloat(product.price),
-        stock: product.stock,
-        category_id: product.category_id,
-        brand_id: product.brand_id,
-        size: product.size,
-        color: product.color,
-        tags: product.tags.map((t) => t.id),
-        image: null,
-      });
-      setImagePreview(getFile(product.image));
-      setFileList([]);
-      setImageFile(null);
+    if (open) {
+      if (isEditMode && product) {
+        // Edit mode - populate form with existing product data
+        reset({
+          name: product.name,
+          description: product.description,
+          price: parseFloat(product.price),
+          stock: product.stock,
+          category_id: product.category_id,
+          brand_id: product.brand_id,
+          size: product.size,
+          color: product.color,
+          tags: product.tags.map((t) => t.id),
+          image: null,
+        });
+        setImagePreview(getFile(product.image));
+        setFileList([]);
+        setImageFile(null);
+      } else {
+        // Create mode - reset to default values with undefined for selects
+        reset({
+          name: '',
+          description: '',
+          price: 0,
+          stock: 0,
+          category_id: undefined, // Changed from 0 to undefined
+          brand_id: undefined, // Changed from 0 to undefined
+          size: '',
+          color: '',
+          tags: [],
+          image: null,
+        });
+        setImagePreview(null);
+        setFileList([]);
+        setImageFile(null);
+      }
     }
-  }, [product, open, reset]);
+  }, [open, isEditMode, product, reset]);
 
   const onSubmit = async (data: ProductFormData) => {
-    if (!product) return;
     try {
       const formData = new FormData();
+
+      // Append all form fields
       formData.append('name', data.name);
       formData.append('description', data.description || '');
       formData.append('price', data.price.toString());
       formData.append('stock', data.stock.toString());
-      formData.append('category_id', data.category_id.toString());
-      formData.append('brand_id', data.brand_id.toString());
+
+      // Only append category_id and brand_id if they have valid values
+      if (data.category_id) {
+        formData.append('category_id', data.category_id.toString());
+      }
+      if (data.brand_id) {
+        formData.append('brand_id', data.brand_id.toString());
+      }
+
       formData.append('color', data.color || '');
       formData.append('size', data.size || '');
 
+      // Handle tags array
       if (data.tags && data.tags.length > 0) {
         data.tags.forEach((tag, index) => {
           formData.append(`tags[${index}]`, tag.toString());
@@ -118,128 +162,135 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
       }
 
       // Handle image logic
-      if (imageFile) {
-        // New image uploaded - use it
-        formData.append('image', imageFile);
-      } else if (!imagePreview) {
-        // No preview means user wants to delete the image
-        formData.append('delete_image', 'true');
-      }
-      // If imagePreview exists but no new imageFile, keep existing image (do nothing)
+      if (isEditMode && product) {
+        // Edit mode image handling
+        if (imageFile) {
+          // New image uploaded - use it
+          formData.append('image', imageFile);
+        } else if (!imagePreview) {
+          // No preview means user wants to delete the image
+          formData.append('delete_image', 'true');
+        }
+        // If imagePreview exists but no new imageFile, keep existing image (do nothing)
 
-      await productsApi.admin.updateProduct(product.id, formData);
-      message.success('Product updated successfully');
-      onClose();
+        await productsApi.admin.updateProduct(product.id, formData);
+        message.success('Product updated successfully');
+      } else {
+        // Create mode image handling
+        if (imageFile) {
+          formData.append('image', imageFile);
+        }
+
+        await productsApi.admin.createProduct(formData);
+        message.success('Product created successfully');
+      }
+
+      // Reset form and close modal
+      handleClose();
       onSuccess?.();
     } catch (error) {
-      const errorMessage = catchErrorMessage(error) || 'Failed to update product';
-      message.error(errorMessage);
+      const errorMessage = catchErrorMessage(error);
+      message.error(errorMessage || `Failed to ${isEditMode ? 'update' : 'create'} product`);
     }
   };
 
   const handleImageChange = (info: any) => {
     const { fileList: newFileList } = info;
-    const latestFileList = newFileList.slice(-1);
-    setFileList(latestFileList);
-    if (latestFileList.length > 0) {
-      const file = latestFileList[0].originFileObj as File;
-      if (file.size > 2 * 1024 * 1024) {
-        message.error('Image must be less than 2MB');
-        setFileList([]);
-        setImageFile(null);
-        setImagePreview(product?.image || null);
-        setValue('image', null);
-        return;
+    setFileList(newFileList);
+
+    if (newFileList.length > 0) {
+      const file = newFileList[0].originFileObj;
+      if (file) {
+        // Validate file size (2MB limit)
+        if (file.size > 2 * 1024 * 1024) {
+          message.error('Image must be smaller than 2MB');
+          setFileList([]);
+          return;
+        }
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          message.error('Please upload a valid image file');
+          setFileList([]);
+          return;
+        }
+
+        setImageFile(file);
+
+        // Create preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(file);
       }
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-      if (!validTypes.includes(file.type)) {
-        message.error('Please upload a valid image file (JPEG, PNG, GIF)');
-        setFileList([]);
-        setImageFile(null);
-        setImagePreview(product?.image || null);
-        setValue('image', null);
-        return;
-      }
-      setImageFile(file);
-      setValue('image', file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
     } else {
       setImageFile(null);
-      setImagePreview(product?.image || null);
-      setValue('image', null);
+      setImagePreview(isEditMode && product ? getFile(product.image) : null);
     }
   };
 
   const removeImage = () => {
-    setFileList([]);
     setImageFile(null);
     setImagePreview(null);
-    setValue('image', null);
+    setFileList([]);
+  };
+
+  const handleClose = () => {
+    // Reset all state when closing
+    reset();
+    setImageFile(null);
+    setImagePreview(null);
+    setFileList([]);
+    onClose();
   };
 
   const handleCancel = () => {
-    onClose();
-    if (product) {
-      reset({
-        name: product.name,
-        description: product.description,
-        price: parseFloat(product.price),
-        stock: product.stock,
-        category_id: product.category_id,
-        brand_id: product.brand_id,
-        size: product.size,
-        color: product.color,
-        tags: product.tags.map((t) => t.id),
-        image: null,
-      });
-      setImagePreview(product.image);
-      setFileList([]);
-      setImageFile(null);
-    }
+    handleClose();
   };
 
   return (
-    <Modal title="Edit Product" open={open} onCancel={handleCancel} footer={null} width={800} destroyOnHidden>
+    <Modal title={modalTitle} open={open} onCancel={handleCancel} footer={null} width={800} destroyOnClose>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
               label="Product Name"
+              required
               validateStatus={errors.name ? 'error' : ''}
               help={errors.name?.message}
-              required
             >
               <Controller
                 name="name"
                 control={control}
                 rules={{
                   required: 'Product name is required',
+                  minLength: { value: 2, message: 'Name must be at least 2 characters' },
                   maxLength: { value: 255, message: 'Name must be less than 255 characters' },
                 }}
                 render={({ field }) => <Input {...field} placeholder="Enter product name" />}
               />
             </Form.Item>
           </Col>
-
           <Col span={12}>
-            <Form.Item label="Price" validateStatus={errors.price ? 'error' : ''} help={errors.price?.message} required>
+            <Form.Item label="Price" required validateStatus={errors.price ? 'error' : ''} help={errors.price?.message}>
               <Controller
                 name="price"
                 control={control}
-                rules={{ required: 'Price is required', min: { value: 0.01, message: 'Price must be greater than 0' } }}
+                rules={{
+                  required: 'Price is required',
+                  min: { value: 0.01, message: 'Price must be greater than 0' },
+                }}
                 render={({ field }) => (
                   <InputNumber
                     {...field}
                     style={{ width: '100%' }}
-                    placeholder="Enter price"
-                    prefix="$"
+                    placeholder="0.00"
+                    precision={2}
                     min={0}
                     step={0.01}
-                    precision={2}
+                    formatter={(value) => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    //   parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
                   />
                 )}
               />
@@ -248,46 +299,63 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
         </Row>
 
         <Row gutter={16}>
-          <Col span={12}>
-            <Form.Item
-              label="Stock Quantity"
-              validateStatus={errors.stock ? 'error' : ''}
-              help={errors.stock?.message}
-              required
-            >
-              <Controller
-                name="stock"
-                control={control}
-                rules={{
-                  required: 'Stock quantity is required',
-                  min: { value: 0, message: 'Stock cannot be negative' },
-                }}
-                render={({ field }) => (
-                  <InputNumber {...field} style={{ width: '100%' }} placeholder="Enter stock quantity" min={0} />
-                )}
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item
               label="Category"
+              required
               validateStatus={errors.category_id ? 'error' : ''}
               help={errors.category_id?.message}
-              required
             >
               <Controller
                 name="category_id"
                 control={control}
                 rules={{ required: 'Category is required' }}
                 render={({ field }) => (
-                  <Select {...field} placeholder="Select category">
-                    {categories.map((cat) => (
-                      <Option key={cat.id} value={cat.id}>
-                        {cat.name}
+                  <Select {...field} placeholder="Select category" style={{ width: '100%' }} allowClear>
+                    {categories.map((category) => (
+                      <Option key={category.id} value={category.id}>
+                        {category.name}
                       </Option>
                     ))}
                   </Select>
+                )}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item
+              label="Brand"
+              required
+              validateStatus={errors.brand_id ? 'error' : ''}
+              help={errors.brand_id?.message}
+            >
+              <Controller
+                name="brand_id"
+                control={control}
+                rules={{ required: 'Brand is required' }}
+                render={({ field }) => (
+                  <Select {...field} placeholder="Select brand" style={{ width: '100%' }} allowClear>
+                    {brands.map((brand) => (
+                      <Option key={brand.id} value={brand.id}>
+                        {brand.name}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item label="Stock" required validateStatus={errors.stock ? 'error' : ''} help={errors.stock?.message}>
+              <Controller
+                name="stock"
+                control={control}
+                rules={{
+                  required: 'Stock is required',
+                  min: { value: 0, message: 'Stock cannot be negative' },
+                }}
+                render={({ field }) => (
+                  <InputNumber {...field} style={{ width: '100%' }} placeholder="0" min={0} step={1} precision={0} />
                 )}
               />
             </Form.Item>
@@ -296,41 +364,16 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item
-              label="Brand"
-              validateStatus={errors.brand_id ? 'error' : ''}
-              help={errors.brand_id?.message}
-              required
-            >
-              <Controller
-                name="brand_id"
-                control={control}
-                rules={{ required: 'Brand is required' }}
-                render={({ field }) => (
-                  <Select {...field} placeholder="Select brand">
-                    {brands.map((b) => (
-                      <Option key={b.id} value={b.id}>
-                        {b.name}
-                      </Option>
-                    ))}
-                  </Select>
-                )}
-              />
-            </Form.Item>
-          </Col>
-
-          <Col span={6}>
             <Form.Item label="Size" validateStatus={errors.size ? 'error' : ''} help={errors.size?.message}>
               <Controller
                 name="size"
                 control={control}
-                rules={{ maxLength: { value: 20, message: 'Size must be less than 20 characters' } }}
+                rules={{ maxLength: { value: 50, message: 'Size must be less than 50 characters' } }}
                 render={({ field }) => <Input {...field} placeholder="Size (optional)" />}
               />
             </Form.Item>
           </Col>
-
-          <Col span={6}>
+          <Col span={12}>
             <Form.Item label="Color" validateStatus={errors.color ? 'error' : ''} help={errors.color?.message}>
               <Controller
                 name="color"
@@ -416,7 +459,7 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
             </Col>
             <Col>
               <Button type="primary" htmlType="submit" loading={isSubmitting} icon={<SaveOutlined />}>
-                Update Product
+                {submitButtonText}
               </Button>
             </Col>
           </Row>
@@ -425,5 +468,3 @@ export const ProductEditModal: React.FC<ProductEditProps> = ({ open, onClose, on
     </Modal>
   );
 };
-
-export default ProductEditModal;

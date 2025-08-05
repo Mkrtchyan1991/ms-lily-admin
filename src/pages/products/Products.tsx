@@ -6,8 +6,8 @@ import { App, Button, Card, Col, Input, Row, Select, Table, Typography } from 'a
 
 import styles from './products.module.scss';
 
-import { ProductCreateModal } from './components/product-create-modal/ProductCreateModal';
-import ProductEditModal from './components/product-edit-modal/ProductEditModal';
+// ✨ CHANGE: Import the new unified component instead of separate modals
+import { ProductManageModal } from './components/product-manage-modal/ProductManageModal';
 import { createProductsColumns } from './products.utils';
 
 const { Title } = Typography;
@@ -25,9 +25,12 @@ export const Products = () => {
   const [categories, setCategories] = useState<CategoryProps[]>([]);
   const [brands, setBrands] = useState<BrandProps[]>([]);
   const [tags, setTags] = useState<TagProps[]>([]);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // ✨ CHANGE: Unified modal state instead of separate create/edit modals
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
   const [editingProduct, setEditingProduct] = useState<IProduct | null>(null);
+
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -101,9 +104,11 @@ export const Products = () => {
     return matchesSearch;
   });
 
+  // ✨ CHANGE: Updated handlers to use unified modal
   const handleEdit = (product: IProduct) => {
+    setModalMode('edit');
     setEditingProduct(product);
-    setIsEditModalOpen(true);
+    setIsModalOpen(true);
   };
 
   const handleDelete = async (productId: number) => {
@@ -172,33 +177,55 @@ export const Products = () => {
     const tag = tags.find((t) => t.name === selectedTag);
     const tagId = tag?.id;
 
-    fetchProducts(newPagination.current, newPagination.pageSize, { category: categoryId, brand: brandId, tag: tagId });
+    fetchProducts(newPagination.current, newPagination.pageSize, {
+      category: categoryId,
+      brand: brandId,
+      tag: tagId,
+    });
+  };
+
+  // ✨ CHANGE: New handler for create button
+  const handleCreateProduct = () => {
+    setModalMode('create');
+    setEditingProduct(null);
+    setIsModalOpen(true);
+  };
+
+  // ✨ CHANGE: New handler for modal close
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditingProduct(null);
+  };
+
+  // ✨ CHANGE: New handler for modal success
+  const handleModalSuccess = () => {
+    fetchProducts(pagination.current, pagination.pageSize);
   };
 
   return (
-    <div className={styles.productsContainer}>
-      <Row gutter={[16, 16]}>
+    <div className={styles.container}>
+      <Row gutter={16}>
         <Col span={24}>
           <Card>
-            <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-              <Col>
-                <Title level={3}>Products Management</Title>
-              </Col>
-              <Col>
-                <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateModalOpen(true)}>
-                  Add Product
-                </Button>
-              </Col>
-            </Row>
+            {/* Header Section */}
+            <div className={styles.header}>
+              <Title level={2}>Products Management</Title>
+              {/* ✨ CHANGE: Updated onClick handler */}
+              <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateProduct}>
+                Add Product
+              </Button>
+            </div>
 
-            {/* Search and Filter Controls */}
+            {/* Search and Filters */}
             <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-              <Col xs={24} sm={12} md={6}>
+              <Col xs={24} sm={12} md={8}>
                 <Search
                   placeholder="Search products..."
+                  allowClear
+                  enterButton={<SearchOutlined />}
+                  size="middle"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
-                  prefix={<SearchOutlined />}
                 />
               </Col>
               <Col xs={24} sm={12} md={6}>
@@ -275,23 +302,13 @@ export const Products = () => {
         </Col>
       </Row>
 
-      <ProductCreateModal
-        open={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSuccess={() => {
-          setIsCreateModalOpen(false);
-          fetchProducts(pagination.current, pagination.pageSize);
-        }}
-      />
-      <ProductEditModal
-        open={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+      {/* ✨ CHANGE: Single unified modal instead of separate create/edit modals */}
+      <ProductManageModal
+        open={isModalOpen}
+        mode={modalMode}
         product={editingProduct}
-        onSuccess={() => {
-          setIsEditModalOpen(false);
-          setEditingProduct(null);
-          fetchProducts(pagination.current, pagination.pageSize);
-        }}
+        onClose={handleModalClose}
+        onSuccess={handleModalSuccess}
       />
     </div>
   );
