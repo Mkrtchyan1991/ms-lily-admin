@@ -2,11 +2,12 @@ import { Order } from '@/service/service.types';
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
+  EditOutlined,
   EyeOutlined,
   ShoppingCartOutlined,
   TruckOutlined,
 } from '@ant-design/icons';
-import { Badge, Button, Select, Space, Tag, Tooltip } from 'antd';
+import { Button, Select, Space, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 
 const getStatusColor = (status: Order['status']) => {
@@ -46,11 +47,16 @@ const getStatusIcon = (status: Order['status']) => {
 interface OrdersColumnsProps {
   handleView: (order: Order) => void;
   handleStatusChange: (id: number, status: Order['status']) => void;
+  handleEdit: (order: Order) => void;
 }
 
 const { Option } = Select;
 
-export const createOrdersColumns = ({ handleView, handleStatusChange }: OrdersColumnsProps): ColumnsType<Order> => [
+export const createOrdersColumns = ({
+  handleView,
+  handleStatusChange,
+  handleEdit,
+}: OrdersColumnsProps): ColumnsType<Order> => [
   {
     title: 'Order ID',
     dataIndex: 'id',
@@ -173,6 +179,9 @@ export const createOrdersColumns = ({ handleView, handleStatusChange }: OrdersCo
       <Space size="small">
         <Tooltip title="View Details">
           <Button type="text" icon={<EyeOutlined />} onClick={() => handleView(record)} />
+        </Tooltip>
+        <Tooltip title="Edit Order">
+          <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
         </Tooltip>
       </Space>
     ),

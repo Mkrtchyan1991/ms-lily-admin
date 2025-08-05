@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ordersApi } from '@/service/orders/orders.api';
 import { Order } from '@/service/service.types';
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons';
@@ -7,6 +7,7 @@ import { App, Button, Card, Col, Input, Row, Select, Statistic, Table, Typograph
 import styles from './orders.module.scss';
 
 import { OrderDetailsModal } from './components/order-details-modal/OrderDetailsModal';
+import { OrderEditModal } from './components/order-edit-modal/OrderEditModal';
 import { createOrdersColumns } from './orders.utils';
 
 const { Title } = Typography;
@@ -21,10 +22,12 @@ export const Orders = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
 
   // Fetch orders from API
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       const response = await ordersApi.admin.getAllOrders();
@@ -43,11 +46,11 @@ export const Orders = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [message]);
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [fetchOrders]);
 
   // Filter orders based on search text and status
   const filteredOrders = orders.filter((order) => {
@@ -66,6 +69,11 @@ export const Orders = () => {
   const handleView = (order: Order) => {
     setSelectedOrder(order);
     setIsDetailsModalOpen(true);
+  };
+
+  const handleEdit = (order: Order) => {
+    setEditingOrder(order);
+    setIsEditModalOpen(true);
   };
 
   const handleRefresh = () => {
@@ -98,7 +106,7 @@ export const Orders = () => {
   };
 
   // Create columns with handler functions
-  const ordersColumns = createOrdersColumns({ handleView, handleStatusChange });
+  const ordersColumns = createOrdersColumns({ handleView, handleStatusChange, handleEdit });
 
   return (
     <div className={styles.container}>
@@ -211,6 +219,20 @@ export const Orders = () => {
         onClose={() => {
           setIsDetailsModalOpen(false);
           setSelectedOrder(null);
+        }}
+      />
+      <OrderEditModal
+        open={isEditModalOpen}
+        order={editingOrder}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingOrder(null);
+        }}
+        onUpdated={(updated) => {
+          setOrders((prev) => prev.map((o) => (o.id === updated.id ? updated : o)));
+          if (selectedOrder && selectedOrder.id === updated.id) {
+            setSelectedOrder(updated);
+          }
         }}
       />
     </div>
