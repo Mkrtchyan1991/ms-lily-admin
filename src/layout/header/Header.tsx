@@ -15,6 +15,8 @@ export const Header = () => {
   const navigate = useNavigate();
   const { toggleTheme } = useTheme();
 
+  const user = useSelector(selectAuthUser);
+
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const loading = useSelector(selectAuthLoading);
 
@@ -58,7 +60,7 @@ export const Header = () => {
             <Button type="text" loading={loading} style={{ height: 'auto', padding: '4px 8px' }}>
               <Space>
                 <Avatar size="small" icon={<UserOutlined />} />
-                <span>USER</span>
+                <span>{user?.name}</span>
               </Space>
             </Button>
           </Dropdown>
