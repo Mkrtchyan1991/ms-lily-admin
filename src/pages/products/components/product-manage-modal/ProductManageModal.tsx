@@ -2,7 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { productsApi } from '@/service/products/products.api';
 import { IProduct } from '@/service/service.types';
 import { catchErrorMessage, getFile } from '@/service/service.utils';
-import { selectBrands, selectCategories, selectCommonError, selectTags } from '@/store/common/common.selectors';
+import {
+  selectBrands,
+  selectCategories,
+  selectColors,
+  selectCommonError,
+  selectSizes,
+  selectTags,
+} from '@/store/common/common.selectors';
 import { fetchFilterOptions } from '@/store/common/common.slice';
 import { AppDispatch } from '@/store/store';
 import { Controller, useForm } from 'react-hook-form';
@@ -21,8 +28,8 @@ interface ProductFormData {
   stock: number;
   category_id: number | undefined;
   brand_id: number | undefined;
-  size: string;
-  color: string;
+  size: string | undefined;
+  color: string | undefined;
   tags: number[];
   image: File | null;
 }
@@ -50,6 +57,8 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
   const categories = useSelector(selectCategories);
   const brands = useSelector(selectBrands);
   const tags = useSelector(selectTags);
+  const sizes = useSelector(selectSizes);
+  const colors = useSelector(selectColors);
   const commonError = useSelector(selectCommonError);
 
   // Determine if we're in edit mode
@@ -71,8 +80,8 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
       stock: 0,
       category_id: undefined, // Changed from 0 to undefined
       brand_id: undefined, // Changed from 0 to undefined
-      size: '',
-      color: '',
+      size: undefined,
+      color: undefined,
       tags: [],
       image: null,
     },
@@ -103,8 +112,8 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
           stock: product.stock,
           category_id: product.category_id,
           brand_id: product.brand_id,
-          size: product.size,
-          color: product.color,
+          size: product.size || undefined,
+          color: product.color || undefined,
           tags: product.tags.map((t) => t.id),
           image: null,
         });
@@ -120,8 +129,8 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
           stock: 0,
           category_id: undefined, // Changed from 0 to undefined
           brand_id: undefined, // Changed from 0 to undefined
-          size: '',
-          color: '',
+          size: undefined,
+          color: undefined,
           tags: [],
           image: null,
         });
@@ -367,8 +376,15 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
               <Controller
                 name="size"
                 control={control}
-                rules={{ maxLength: { value: 50, message: 'Size must be less than 50 characters' } }}
-                render={({ field }) => <Input {...field} placeholder="Size (optional)" />}
+                render={({ field }) => (
+                  <Select {...field} placeholder="Select size (optional)" allowClear value={field.value || undefined}>
+                    {sizes.map((size) => (
+                      <Option key={size} value={size}>
+                        {size}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
               />
             </Form.Item>
           </Col>
@@ -377,8 +393,15 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
               <Controller
                 name="color"
                 control={control}
-                rules={{ maxLength: { value: 50, message: 'Color must be less than 50 characters' } }}
-                render={({ field }) => <Input {...field} placeholder="Color (optional)" />}
+                render={({ field }) => (
+                  <Select {...field} placeholder="Select color (optional)" allowClear value={field.value || undefined}>
+                    {colors.map((color) => (
+                      <Option key={color} value={color}>
+                        {color}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
               />
             </Form.Item>
           </Col>
@@ -416,7 +439,7 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
           <Controller
             name="image"
             control={control}
-            render={({ field }) => (
+            render={({ field: _field }) => (
               <div>
                 <Upload
                   fileList={fileList}
