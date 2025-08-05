@@ -20,6 +20,18 @@ type MenuItem = Required<MenuProps>['items'][number];
 const items: MenuItem[] = [
   { label: <NavLink to="/orders">Orders</NavLink>, key: '/orders', icon: <ShoppingCartOutlined /> },
   { label: <NavLink to="/products">Products</NavLink>, key: '/products', icon: <ShopOutlined /> },
+  {
+    label: 'Catalog',
+    key: 'catalog',
+    icon: <PieChartOutlined />,
+    children: [
+      { label: <NavLink to="/categories">Categories</NavLink>, key: '/categories' },
+      { label: <NavLink to="/brands">Brands</NavLink>, key: '/brands' },
+      { label: <NavLink to="/tags">Tags</NavLink>, key: '/tags' },
+      { label: <NavLink to="/colors">Colors</NavLink>, key: '/colors' },
+      { label: <NavLink to="/sizes">Sizes</NavLink>, key: '/sizes' },
+    ],
+  },
   { label: <NavLink to="/users">Users</NavLink>, key: '/users', icon: <UserOutlined /> },
   { label: <NavLink to="/comments">Comments</NavLink>, key: '/comments', icon: <CommentOutlined /> },
 ];

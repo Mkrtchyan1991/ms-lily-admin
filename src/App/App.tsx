@@ -4,6 +4,7 @@ import { Header } from '@/layout/header/Header';
 import { Sidebar } from '@/layout/sidebar/Sidebar';
 import { CommentsPage } from '@/pages/comments/Comments';
 import { LoginPage } from '@/pages/login/Login';
+import { BrandsPage, CategoriesPage, ColorsPage, SizesPage, TagsPage } from '@/pages/options/Options';
 import { Orders } from '@/pages/orders/Orders';
 import { ProductPage } from '@/pages/product/Product';
 import { Products } from '@/pages/products/Products';
@@ -48,6 +49,11 @@ const App: React.FC = () => {
                       <Route path="/users" element={<Users />} />
                       <Route path="/products" element={<Products />} />
                       <Route path="/products/:id" element={<ProductPage />} />
+                      <Route path="/categories" element={<CategoriesPage />} />
+                      <Route path="/brands" element={<BrandsPage />} />
+                      <Route path="/tags" element={<TagsPage />} />
+                      <Route path="/colors" element={<ColorsPage />} />
+                      <Route path="/sizes" element={<SizesPage />} />
                       <Route path="/profile" element={<ProfilePage />} />
                       <Route path="/comments" element={<CommentsPage />} />
                       <Route path="*" element={<Navigate to={'/orders'} />} />
