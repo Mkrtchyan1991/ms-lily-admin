@@ -1,7 +1,8 @@
 import React from 'react';
 import { Order } from '@/service/service.types';
+import { formatDate, formatTime } from '@/utils/date';
 import { CheckCircleOutlined, ClockCircleOutlined, ShoppingCartOutlined, TruckOutlined } from '@ant-design/icons';
-import { Badge, Card, Col, Descriptions, Divider, Modal, Row, Steps, Table, Tag, Typography } from 'antd';
+import { Card, Col, Descriptions, Modal, Row, Steps, Table, Tag, Typography } from 'antd';
 
 const { Title, Text } = Typography;
 
@@ -142,7 +143,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ open, orde
             <Descriptions column={1} size="small">
               <Descriptions.Item label="Order ID">#{order.id}</Descriptions.Item>
               <Descriptions.Item label="Date">
-                {new Date(order.created_at).toLocaleDateString()} {new Date(order.created_at).toLocaleTimeString()}
+                {formatDate(order.created_at)} {formatTime(order.created_at)}
               </Descriptions.Item>
               <Descriptions.Item label="Total Amount">
                 <Text strong style={{ fontSize: '16px' }}>

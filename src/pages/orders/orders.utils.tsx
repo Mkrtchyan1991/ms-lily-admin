@@ -1,4 +1,5 @@
 import { Order } from '@/service/service.types';
+import { formatDate, formatTime } from '@/utils/date';
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -6,7 +7,7 @@ import {
   ShoppingCartOutlined,
   TruckOutlined,
 } from '@ant-design/icons';
-import { Badge, Button, Select, Space, Tag, Tooltip } from 'antd';
+import { Button, Select, Space, Tag, Tooltip } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 
 const getStatusColor = (status: Order['status']) => {
@@ -160,8 +161,8 @@ export const createOrdersColumns = ({ handleView, handleStatusChange }: OrdersCo
     sorter: (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
     render: (date: string) => (
       <div>
-        <div>{new Date(date).toLocaleDateString()}</div>
-        <div style={{ fontSize: '12px', color: '#666' }}>{new Date(date).toLocaleTimeString()}</div>
+        <div>{formatDate(date)}</div>
+        <div style={{ fontSize: '12px', color: '#666' }}>{formatTime(date)}</div>
       </div>
     ),
   },

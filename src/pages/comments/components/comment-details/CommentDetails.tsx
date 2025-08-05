@@ -1,8 +1,8 @@
 import React from 'react';
 import { ProductComment } from '@/service/service.types';
+import { formatDateTime } from '@/utils/date';
 import { CheckOutlined, CloseOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Button, Card, Modal, Space, Tag, Typography } from 'antd';
-import dayjs from 'dayjs';
 
 import styles from './comment-details.module.scss';
 
@@ -146,12 +146,12 @@ export const CommentDetails: React.FC<CommentDetailsModalProps> = ({ open, comme
               </div>
               <div className={styles.metadataRow}>
                 <Text strong>Posted:</Text>
-                <Text>{dayjs(comment.created_at).format('YYYY-MM-DD HH:mm:ss')}</Text>
+                <Text>{formatDateTime(comment.created_at, { dateStyle: 'medium', timeStyle: 'medium' })}</Text>
               </div>
               {comment.updated_at !== comment.created_at && (
                 <div className={styles.metadataRow}>
                   <Text strong>Last Updated:</Text>
-                  <Text>{dayjs(comment.updated_at).format('YYYY-MM-DD HH:mm:ss')}</Text>
+                  <Text>{formatDateTime(comment.updated_at, { dateStyle: 'medium', timeStyle: 'medium' })}</Text>
                 </div>
               )}
             </Space>

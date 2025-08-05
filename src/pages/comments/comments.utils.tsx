@@ -1,4 +1,5 @@
 import { ProductComment } from '@/service/service.types';
+import { formatDate, formatDateTime, formatTime } from '@/utils/date';
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -7,9 +8,8 @@ import {
   EyeOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Avatar, Button, Select, Space, Tag, Tooltip, Typography } from 'antd';
+import { Avatar, Button, Select, Space, Tooltip, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -150,10 +150,10 @@ export const createCommentsColumns = ({
     dataIndex: 'created_at',
     key: 'created_at',
     render: (date: string) => (
-      <Tooltip title={dayjs(date).format('YYYY-MM-DD HH:mm:ss')}>
+      <Tooltip title={formatDateTime(date, { dateStyle: 'medium', timeStyle: 'medium' })}>
         <div>
-          <div style={{ fontWeight: 500 }}>{dayjs(date).format('MM/DD/YY')}</div>
-          <div style={{ fontSize: '12px', color: '#666' }}>{dayjs(date).format('HH:mm')}</div>
+          <div style={{ fontWeight: 500 }}>{formatDate(date)}</div>
+          <div style={{ fontSize: '12px', color: '#666' }}>{formatTime(date)}</div>
         </div>
       </Tooltip>
     ),
