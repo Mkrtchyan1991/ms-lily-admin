@@ -225,6 +225,8 @@ export const Products = () => {
                   onChange={(e) => setSearchText(e.target.value)}
                 />
               </Col>
+            </Row>
+            <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
               <Col xs={24} sm={12} md={6}>
                 <Select
                   placeholder="Select Category"
