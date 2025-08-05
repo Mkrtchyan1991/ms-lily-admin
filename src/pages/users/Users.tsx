@@ -24,14 +24,13 @@ import { UserEditModal } from './components/UserEditModal';
 
 const { Title } = Typography;
 const { Option } = Select;
-const { confirm } = Modal;
 
 interface UsersTableData extends User {
   key: string;
 }
 
 export const Users: React.FC = () => {
-  const { message } = App.useApp();
+  const { message, modal } = App.useApp();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -75,7 +74,7 @@ export const Users: React.FC = () => {
   };
 
   const handleDeleteUser = (user: User) => {
-    confirm({
+    modal.confirm({
       title: 'Delete User',
       icon: <ExclamationCircleOutlined />,
       content: `Are you sure you want to delete ${user.name} ${user.last_name}?`,
