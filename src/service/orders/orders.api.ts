@@ -37,7 +37,7 @@ export const ordersApi = {
     updateOrderStatus: (id: number, status: Order['status']): Promise<ApiResponse<Order>> =>
       axios.patch(`/admin/orders/${id}/status`, { status }),
 
-    updateOrder: (id: number, data: UpdateOrderRequest): Promise<ApiResponse<Order>> =>
+    updateOrder: (id: number, data: UpdateOrderRequest): Promise<ApiResponse<{ data: Order }>> =>
       axios.patch(`/admin/orders/${id}`, data),
 
     deleteOrder: (id: number): Promise<ApiResponse<null>> => axios.delete(`/admin/orders/${id}`),

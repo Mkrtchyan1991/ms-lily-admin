@@ -20,11 +20,12 @@ export const authApi = {
   logoutAllDevices: (): Promise<ApiResponse<null>> => axios.post('/logout-all-devices'),
 
   // User management
-  getUser: (): Promise<ApiResponse<User>> => axios.get('/user'),
+  getUser: (): Promise<ApiResponse<{ data: User }>> => axios.get('/user'),
 
   getProfile: (): Promise<ApiResponse<User>> => axios.get('/profile'),
 
-  updateProfile: (body: Partial<RegisterRequest>): Promise<ApiResponse<User>> => axios.patch('/profile', body),
+  updateProfile: (body: Partial<RegisterRequest>): Promise<ApiResponse<{ data: User }>> =>
+    axios.patch('/profile', body),
 
   // Email verification
   verifyEmail: (id: string, hash: string, expires: string, signature: string): Promise<ApiResponse<null>> =>
