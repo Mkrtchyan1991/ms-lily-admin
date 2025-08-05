@@ -10,6 +10,9 @@ export const commentsApi = {
   createComment: (productId: number, data: CreateCommentRequest): Promise<ApiResponse<ProductComment>> =>
     axios.post(`/products/${productId}/comments`, data),
 
+  updateComment: (id: number, data: CreateCommentRequest): Promise<ApiResponse<ProductComment>> =>
+    axios.patch(`/comments/${id}`, data),
+
   // Admin comment management
   admin: {
     // Updated: Remove getPendingComments and use getAllComments with status filter
