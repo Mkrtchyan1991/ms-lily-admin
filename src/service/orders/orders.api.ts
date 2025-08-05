@@ -7,6 +7,11 @@ interface CreateOrderRequest {
   shipping_address: Omit<ShippingAddress, 'id'>;
 }
 
+interface UpdateOrderRequest {
+  shipping_address?: Omit<ShippingAddress, 'id'>;
+  items?: { product_id: number; quantity: number }[];
+}
+
 export const ordersApi = {
   // User orders
   getUserOrders: (config?: AxiosRequestConfig): Promise<ApiResponse<PaginatedResponse<Order>>> =>
@@ -31,6 +36,9 @@ export const ordersApi = {
 
     updateOrderStatus: (id: number, status: Order['status']): Promise<ApiResponse<Order>> =>
       axios.patch(`/admin/orders/${id}/status`, { status }),
+
+    updateOrder: (id: number, data: UpdateOrderRequest): Promise<ApiResponse<Order>> =>
+      axios.patch(`/admin/orders/${id}`, data),
 
     deleteOrder: (id: number): Promise<ApiResponse<null>> => axios.delete(`/admin/orders/${id}`),
   },
