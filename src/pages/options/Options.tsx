@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { optionsApi, OptionType } from '@/service/options/options.api';
+import { isResourceApiType, optionsApi, OptionType } from '@/service/options/options.api';
 import { App, Button, Input, Modal, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 
@@ -68,9 +68,15 @@ const OptionManager: React.FC<{ type: OptionType }> = ({ type }) => {
       okType: 'danger',
       onOk: async () => {
         try {
-          if (item.id !== undefined) {
-            await optionsApi[type].delete(item.id);
+          if (isResourceApiType(type)) {
+            // TypeScript now knows this is a ResourceApi
+            if (item.id !== undefined) {
+              await optionsApi[type].delete(item.id);
+            } else {
+              throw new Error('ID is required for resource-based deletion');
+            }
           } else {
+            // TypeScript now knows this is a SimpleApi
             await optionsApi[type].delete(item.name);
           }
           message.success(`${labels[type]} deleted`);
@@ -85,9 +91,15 @@ const OptionManager: React.FC<{ type: OptionType }> = ({ type }) => {
   const handleSubmit = async () => {
     try {
       if (editingItem) {
-        if (editingItem.id !== undefined) {
-          await optionsApi[type].update(editingItem.id, { name });
+        if (isResourceApiType(type)) {
+          // TypeScript now knows this is a ResourceApi
+          if (editingItem.id !== undefined) {
+            await optionsApi[type].update(editingItem.id, { name });
+          } else {
+            throw new Error('ID is required for resource-based update');
+          }
         } else {
+          // TypeScript now knows this is a SimpleApi
           await optionsApi[type].update(editingItem.name, { name });
         }
         message.success(`${labels[type]} updated`);

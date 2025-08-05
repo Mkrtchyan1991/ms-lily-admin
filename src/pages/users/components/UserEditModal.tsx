@@ -2,11 +2,7 @@ import React, { useEffect } from 'react';
 import { RegisterRequest, User } from '@/service/service.types';
 import { catchErrorMessage } from '@/service/service.utils';
 import { usersApi } from '@/service/users/users.api';
-import { selectAuthUser } from '@/store/auth/auth.selectors';
-import { setUser } from '@/store/auth/auth.slice';
-import { AppDispatch } from '@/store/store';
 import { Controller, useForm } from 'react-hook-form';
-import { useDispatch, useSelector } from 'react-redux';
 import {
   GlobalOutlined,
   HomeOutlined,
@@ -43,15 +39,13 @@ interface UserEditModalProps {
 
 export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onSuccess, user }) => {
   const { message } = App.useApp();
-  const dispatch = useDispatch<AppDispatch>();
-  const authUser = useSelector(selectAuthUser);
 
   const {
     control,
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-    // watch,
+    watch,
   } = useForm<UserFormData>({
     defaultValues: {
       name: '',
@@ -68,7 +62,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
     },
   });
 
-  // const password = watch('password');
+  const password = watch('password');
 
   // Reset form when user changes
   useEffect(() => {
@@ -111,14 +105,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
         updateData.password_confirmation = data.password_confirmation;
       }
 
-      const response = await usersApi.admin.updateUser(user.id, updateData);
-      const updatedUser = response.data.data;
-
-      // If the edited user is the current authenticated user, update auth state
-      if (authUser?.id === updatedUser.id) {
-        dispatch(setUser(updatedUser));
-      }
-
+      await usersApi.admin.updateUser(user.id, updateData);
       message.success('User updated successfully');
       onClose();
       onSuccess?.();
@@ -128,33 +115,33 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
     }
   };
 
-  const validateEmail = (value: string) => {
+  const validateEmail = (value: string | undefined) => {
     if (!value) return 'Email is required';
     const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     if (!emailRegex.test(value)) return 'Please enter a valid email';
     return true;
   };
 
-  const validatePhone = (value: string) => {
+  const validatePhone = (value: string | undefined) => {
     if (!value) return 'Phone number is required';
     const phoneRegex = /^\+?[1-9]\d{1,14}$/;
     if (!phoneRegex.test(value)) return 'Please enter a valid phone number';
     return true;
   };
 
-  // const validatePassword = (value: string) => {
-  //   if (value && value.length < 8) return 'Password must be at least 8 characters';
-  //   return true;
-  // };
+  const validatePassword = (value: string | undefined) => {
+    if (value && value.length < 8) return 'Password must be at least 8 characters';
+    return true;
+  };
 
-  // const validatePasswordConfirmation = (value: string) => {
-  //   if (password && !value) return 'Password confirmation is required';
-  //   if (value && value !== password) return 'Passwords do not match';
-  //   return true;
-  // };
+  const validatePasswordConfirmation = (value: string | undefined) => {
+    if (password && !value) return 'Password confirmation is required';
+    if (value && value !== password) return 'Passwords do not match';
+    return true;
+  };
 
   return (
-    <Modal title="Edit User" open={open} onCancel={onClose} footer={null} width={800} destroyOnHidden>
+    <Modal title="Edit User" open={open} onCancel={onClose} footer={null} width={800} destroyOnClose>
       <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
         <Row gutter={16}>
           <Col span={12}>
@@ -231,7 +218,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
               <Controller
                 name="password"
                 control={control}
-                //  rules={{ validate: validatePassword }}
+                rules={{ validate: validatePassword }}
                 render={({ field }) => (
                   <Input.Password {...field} prefix={<LockOutlined />} placeholder="Enter new password" />
                 )}
@@ -248,7 +235,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({ open, onClose, onS
               <Controller
                 name="password_confirmation"
                 control={control}
-                //  rules={{ validate: validatePasswordConfirmation }}
+                rules={{ validate: validatePasswordConfirmation }}
                 render={({ field }) => (
                   <Input.Password {...field} prefix={<LockOutlined />} placeholder="Confirm new password" />
                 )}
