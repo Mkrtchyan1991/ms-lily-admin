@@ -86,6 +86,20 @@ export type TagProps = {
   };
 };
 
+export interface PriceRange {
+  min_price: number;
+  max_price: number;
+}
+
+export interface FilterOptions {
+  categories: CategoryProps[];
+  brands: BrandProps[];
+  tags: TagProps[];
+  price_range: PriceRange;
+  colors: string[];
+  sizes: string[];
+}
+
 export interface Order {
   id: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';

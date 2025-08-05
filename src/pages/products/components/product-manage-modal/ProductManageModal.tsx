@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { productsApi } from '@/service/products/products.api';
-import { BrandProps, CategoryProps, IProduct, TagProps } from '@/service/service.types';
+import { IProduct } from '@/service/service.types';
 import { catchErrorMessage, getFile } from '@/service/service.utils';
+import { selectBrands, selectCategories, selectCommonError, selectTags } from '@/store/common/common.selectors';
+import { fetchFilterOptions } from '@/store/common/common.slice';
+import { AppDispatch } from '@/store/store';
 import { Controller, useForm } from 'react-hook-form';
+import { useDispatch, useSelector } from 'react-redux';
 import { DeleteOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import { App, Button, Col, Form, Image, Input, InputNumber, Modal, Row, Select, Upload } from 'antd';
 import type { UploadFile } from 'antd/es/upload/interface';
@@ -38,13 +42,15 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
   product = null,
   mode,
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const { message } = App.useApp();
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [categories, setCategories] = useState<CategoryProps[]>([]);
-  const [brands, setBrands] = useState<BrandProps[]>([]);
-  const [tags, setTags] = useState<TagProps[]>([]);
+  const categories = useSelector(selectCategories);
+  const brands = useSelector(selectBrands);
+  const tags = useSelector(selectTags);
+  const commonError = useSelector(selectCommonError);
 
   // Determine if we're in edit mode
   const isEditMode = mode === 'edit' || !!product;
@@ -74,23 +80,16 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
 
   // Load filter options when modal opens
   useEffect(() => {
-    const loadOptions = async () => {
-      try {
-        const response = await productsApi.getFilterOptions();
-        if (response.data) {
-          setCategories(response.data.categories);
-          setBrands(response.data.brands);
-          setTags(response.data.tags);
-        }
-      } catch (error) {
-        message.error('Failed to load filter options');
-      }
-    };
-
     if (open) {
-      loadOptions();
+      dispatch(fetchFilterOptions());
     }
-  }, [open, message]);
+  }, [open, dispatch]);
+
+  useEffect(() => {
+    if (commonError) {
+      message.error(commonError);
+    }
+  }, [commonError, message]);
 
   // Reset form when modal opens or product changes
   useEffect(() => {
