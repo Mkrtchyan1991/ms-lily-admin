@@ -44,6 +44,10 @@ export interface IProduct {
   brand_id: number;
   color: string;
   size: string;
+  textDark: string | null;
+  del: string | null;
+  textSuccess: string | null;
+  star: string | null;
   image: string | null;
   price: string;
   stock: number;
@@ -58,6 +62,10 @@ export interface CreateProductRequest {
   price: number;
   category_id: number;
   brand_id: number;
+  textDark: string;
+  del: string;
+  textSuccess: string;
+  star: string;
   images?: File[];
   tags?: number[];
 }
