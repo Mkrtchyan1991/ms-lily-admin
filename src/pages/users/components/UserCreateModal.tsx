@@ -240,10 +240,16 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({ open, onClose,
           </Col>
 
           <Col span={12}>
-            <Form.Item label="Country" validateStatus={errors.country ? 'error' : ''} help={errors.country?.message}>
+            <Form.Item
+              label="Country"
+              validateStatus={errors.country ? 'error' : ''}
+              help={errors.country?.message}
+              required
+            >
               <Controller
                 name="country"
                 control={control}
+                rules={{ required: 'Country is required' }}
                 render={({ field }) => <Input {...field} prefix={<GlobalOutlined />} placeholder="Enter country" />}
               />
             </Form.Item>
@@ -252,10 +258,11 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({ open, onClose,
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="City" validateStatus={errors.city ? 'error' : ''} help={errors.city?.message}>
+            <Form.Item label="City" validateStatus={errors.city ? 'error' : ''} help={errors.city?.message} required>
               <Controller
                 name="city"
                 control={control}
+                rules={{ required: 'City is required' }}
                 render={({ field }) => <Input {...field} prefix={<HomeOutlined />} placeholder="Enter city" />}
               />
             </Form.Item>
@@ -266,20 +273,28 @@ export const UserCreateModal: React.FC<UserCreateModalProps> = ({ open, onClose,
               label="Postal Code"
               validateStatus={errors.postal_code ? 'error' : ''}
               help={errors.postal_code?.message}
+              required
             >
               <Controller
                 name="postal_code"
                 control={control}
+                rules={{ required: 'Postal code is required' }}
                 render={({ field }) => <Input {...field} placeholder="Enter postal code" />}
               />
             </Form.Item>
           </Col>
         </Row>
 
-        <Form.Item label="Address" validateStatus={errors.address ? 'error' : ''} help={errors.address?.message}>
+        <Form.Item
+          label="Address"
+          validateStatus={errors.address ? 'error' : ''}
+          help={errors.address?.message}
+          required
+        >
           <Controller
             name="address"
             control={control}
+            rules={{ required: 'Address is required' }}
             render={({ field }) => <Input.TextArea {...field} rows={3} placeholder="Enter full address" />}
           />
         </Form.Item>
