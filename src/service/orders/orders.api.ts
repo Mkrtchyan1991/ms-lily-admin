@@ -30,7 +30,19 @@ export const ordersApi = {
       page?: number;
       per_page?: number;
       status?: Order['status'];
-    }): Promise<ApiResponse<PaginatedResponse<Order>>> => axios.get('/admin/orders', { params }),
+    }): Promise<
+      ApiResponse<{
+        data: Order[];
+        summary: {
+          total_orders: number;
+          pending: number;
+          processing: number;
+          shipped: number;
+          delivered: number;
+          total_revenue: string;
+        };
+      }>
+    > => axios.get('/admin/orders', { params }),
 
     getOrder: (id: number): Promise<ApiResponse<Order>> => axios.get(`/admin/orders/${id}`),
 

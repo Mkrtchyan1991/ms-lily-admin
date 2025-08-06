@@ -25,6 +25,14 @@ export const Orders = () => {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [ordersSummary, setOrdersSummary] = useState({
+    total_orders: 0,
+    pending: 0,
+    processing: 0,
+    shipped: 0,
+    delivered: 0,
+    total_revenue: '0',
+  });
 
   // Fetch orders from API
   const fetchOrders = useCallback(async () => {
@@ -34,11 +42,8 @@ export const Orders = () => {
 
       if (response.data) {
         setOrders(response.data.data);
-        setPagination({
-          current: response.data.current_page,
-          pageSize: response.data.per_page,
-          total: response.data.total,
-        });
+        setPagination((prev) => ({ ...prev, total: response.data.summary.total_orders }));
+        setOrdersSummary(response.data.summary);
       }
     } catch (error) {
       console.error('Failed to fetch orders:', error);
@@ -51,20 +56,6 @@ export const Orders = () => {
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
-
-  // Filter orders based on search text and status
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      searchText === '' ||
-      order.id.toString()?.includes(searchText) ||
-      order.shipping_address.full_name?.toLowerCase()?.includes(searchText?.toLowerCase()) ||
-      order.shipping_address.phone?.includes(searchText) ||
-      order.items.some((item) => item?.product_name?.toLowerCase()?.includes(searchText?.toLowerCase()));
-
-    const matchesStatus = !statusFilter || order.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
 
   const handleView = (order: Order) => {
     setSelectedOrder(order);
@@ -96,13 +87,12 @@ export const Orders = () => {
 
   // Calculate statistics
   const stats = {
-    total: orders.length,
-    pending: orders.filter((o) => o.status === 'pending').length,
-    processing: orders.filter((o) => o.status === 'processing').length,
-    shipped: orders.filter((o) => o.status === 'shipped').length,
-    delivered: orders.filter((o) => o.status === 'delivered').length,
-    cancelled: orders.filter((o) => o.status === 'cancelled').length,
-    totalRevenue: orders.reduce((sum, order) => sum + parseFloat(order.total), 0),
+    total: ordersSummary.total_orders,
+    pending: ordersSummary.pending,
+    processing: ordersSummary.processing,
+    shipped: ordersSummary.shipped,
+    delivered: ordersSummary.delivered,
+    totalRevenue: ordersSummary.total_revenue,
   };
 
   // Create columns with handler functions
@@ -197,13 +187,13 @@ export const Orders = () => {
         {/* Orders Table */}
         <Table
           columns={ordersColumns}
-          dataSource={filteredOrders}
+          dataSource={orders}
           loading={loading}
           rowKey="id"
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,
-            total: filteredOrders.length,
+            total: pagination.total,
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} orders`,

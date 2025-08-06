@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ProductComment } from '@/service/service.types';
 import { formatDate, formatDateTime, formatTime } from '@/utils/date';
+import { Link } from 'react-router';
 import {
   CheckCircleOutlined,
   ClockCircleOutlined,
@@ -100,7 +101,9 @@ export const createCommentsColumns = ({
     key: 'product',
     render: (product: ProductComment['product']) => (
       <div>
-        <div style={{ fontWeight: 500 }}>{product?.name || 'N/A'}</div>
+        <Link style={{ fontWeight: 500 }} to={`/products/${product?.id}`}>
+          {product?.name || 'N/A'}
+        </Link>
         <div style={{ fontSize: '12px', color: '#666' }}>ID: {product?.id || 'N/A'}</div>
       </div>
     ),

@@ -23,7 +23,13 @@ export const commentsApi = {
       search?: string;
       sort_by?: 'created_at' | 'updated_at' | 'id';
       sort_order?: 'asc' | 'desc';
-    }): Promise<ApiResponse<PaginatedResponse<ProductComment>>> => {
+    }): Promise<
+      ApiResponse<
+        PaginatedResponse<ProductComment> & {
+          counts: { total: number; pending: number; approved: number; rejected: number };
+        }
+      >
+    > => {
       // Filter out 'all' status as it shouldn't be sent to the API
       const { status, ...otherParams } = params || {};
       const apiParams = {

@@ -29,6 +29,7 @@ export const CommentsPage = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 });
+  const [stats, setStats] = useState({ total: 0, pending: 0, approved: 0, rejected: 0 });
 
   // Fetch comments from API
   const fetchComments = useCallback(async () => {
@@ -42,13 +43,13 @@ export const CommentsPage = () => {
         sort_by: 'created_at' as const,
         sort_order: 'desc' as const,
       };
-      console.log(params);
 
       const response = await commentsApi.admin.getAllComments(params);
 
       if (response.data) {
         setComments(response.data.data);
-        setPagination((prev) => ({ ...prev, total: response.data.total }));
+        setPagination((prev) => ({ ...prev, total: response.data.meta.total }));
+        setStats(response.data.counts);
       }
     } catch (error) {
       console.error('Failed to fetch comments:', error);
@@ -135,14 +136,6 @@ export const CommentsPage = () => {
       console.error('Failed to update comment:', error);
       message.error('Failed to update comment');
     }
-  };
-
-  // Calculate statistics
-  const stats = {
-    total: comments.length,
-    pending: comments.filter((c) => c.status === 'pending').length,
-    approved: comments.filter((c) => c.status === 'approved').length,
-    rejected: comments.filter((c) => c.status === 'rejected').length,
   };
 
   // Create columns with handler functions
