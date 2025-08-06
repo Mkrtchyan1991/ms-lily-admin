@@ -31,6 +31,7 @@ export const Orders = () => {
     processing: 0,
     shipped: 0,
     delivered: 0,
+    cancelled: 0,
     total_revenue: '0',
   });
 
@@ -92,6 +93,7 @@ export const Orders = () => {
     processing: ordersSummary.processing,
     shipped: ordersSummary.shipped,
     delivered: ordersSummary.delivered,
+    cancelled: ordersSummary.cancelled,
     totalRevenue: ordersSummary.total_revenue,
   };
 
@@ -125,6 +127,11 @@ export const Orders = () => {
         <Col span={4}>
           <Card>
             <Statistic title="Delivered" value={stats.delivered} valueStyle={{ color: '#52c41a' }} />
+          </Card>
+        </Col>
+        <Col span={4}>
+          <Card>
+            <Statistic title="Cancelled" value={stats.cancelled} valueStyle={{ color: '#ff4d4f' }} />
           </Card>
         </Col>
         <Col span={4}>
