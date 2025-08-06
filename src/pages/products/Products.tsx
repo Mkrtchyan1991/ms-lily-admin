@@ -52,7 +52,7 @@ export const Products = () => {
 
       if (response.data) {
         setProducts(response.data.data);
-        setPagination((prev) => ({ ...prev, total: response.data.total || 0 }));
+        setPagination(() => ({ pageSize, current: page, total: response.data.total || 0 }));
       }
     } catch (error) {
       console.error('Failed to fetch products:', error);
