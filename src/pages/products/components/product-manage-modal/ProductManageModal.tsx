@@ -31,6 +31,10 @@ interface ProductFormData {
   size: string | undefined;
   color: string | undefined;
   tags: number[];
+  textDark: string;
+  del: string;
+  textSuccess: string;
+  star: string;
   image: File | null;
 }
 
@@ -83,6 +87,10 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
       size: undefined,
       color: undefined,
       tags: [],
+      textDark: '',
+      del: '',
+      textSuccess: '',
+      star: '',
       image: null,
     },
   });
@@ -115,6 +123,10 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
           size: product.size || undefined,
           color: product.color || undefined,
           tags: product.tags.map((t) => t.id),
+          textDark: product.textDark ?? '',
+          del: product.del ?? '',
+          textSuccess: product.textSuccess ?? '',
+          star: product.star ?? '',
           image: null,
         });
         setImagePreview(getFile(product.image));
@@ -132,6 +144,10 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
           size: undefined,
           color: undefined,
           tags: [],
+          textDark: '',
+          del: '',
+          textSuccess: '',
+          star: '',
           image: null,
         });
         setImagePreview(null);
@@ -161,6 +177,10 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
 
       formData.append('color', data.color || '');
       formData.append('size', data.size || '');
+      formData.append('textDark', data.textDark);
+      formData.append('del', data.del);
+      formData.append('textSuccess', data.textSuccess);
+      formData.append('star', data.star);
 
       // Handle tags array
       if (data.tags && data.tags.length > 0) {
@@ -372,12 +392,13 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
 
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item label="Size" validateStatus={errors.size ? 'error' : ''} help={errors.size?.message}>
+            <Form.Item label="Size" required validateStatus={errors.size ? 'error' : ''} help={errors.size?.message}>
               <Controller
                 name="size"
                 control={control}
+                rules={{ required: 'Size is required' }}
                 render={({ field }) => (
-                  <Select {...field} placeholder="Select size (optional)" allowClear value={field.value || undefined}>
+                  <Select {...field} placeholder="Select size" allowClear value={field.value || undefined}>
                     {sizes.map((size) => (
                       <Option key={size} value={size}>
                         {size}
@@ -389,12 +410,13 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item label="Color" validateStatus={errors.color ? 'error' : ''} help={errors.color?.message}>
+            <Form.Item label="Color" required validateStatus={errors.color ? 'error' : ''} help={errors.color?.message}>
               <Controller
                 name="color"
                 control={control}
+                rules={{ required: 'Color is required' }}
                 render={({ field }) => (
-                  <Select {...field} placeholder="Select color (optional)" allowClear value={field.value || undefined}>
+                  <Select {...field} placeholder="Select color" allowClear value={field.value || undefined}>
                     {colors.map((color) => (
                       <Option key={color} value={color}>
                         {color}
@@ -407,27 +429,83 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
           </Col>
         </Row>
 
+        <Row gutter={16}>
+          <Col span={6}>
+            <Form.Item
+              label="Text Dark"
+              required
+              validateStatus={errors.textDark ? 'error' : ''}
+              help={errors.textDark?.message}
+            >
+              <Controller
+                name="textDark"
+                control={control}
+                rules={{ required: 'Text Dark is required' }}
+                render={({ field }) => <Input {...field} placeholder="Enter textDark" />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Del" required validateStatus={errors.del ? 'error' : ''} help={errors.del?.message}>
+              <Controller
+                name="del"
+                control={control}
+                rules={{ required: 'Del is required' }}
+                render={({ field }) => <Input {...field} placeholder="Enter del" />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item
+              label="Text Success"
+              required
+              validateStatus={errors.textSuccess ? 'error' : ''}
+              help={errors.textSuccess?.message}
+            >
+              <Controller
+                name="textSuccess"
+                control={control}
+                rules={{ required: 'Text Success is required' }}
+                render={({ field }) => <Input {...field} placeholder="Enter textSuccess" />}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item label="Star" required validateStatus={errors.star ? 'error' : ''} help={errors.star?.message}>
+              <Controller
+                name="star"
+                control={control}
+                rules={{ required: 'Star is required' }}
+                render={({ field }) => <Input {...field} placeholder="Enter star" />}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
+
         <Form.Item
           label="Description"
+          required
           validateStatus={errors.description ? 'error' : ''}
           help={errors.description?.message}
         >
           <Controller
             name="description"
             control={control}
-            render={({ field }) => <TextArea {...field} rows={4} placeholder="Enter product description (optional)" />}
+            rules={{ required: 'Description is required' }}
+            render={({ field }) => <TextArea {...field} rows={4} placeholder="Enter product description" />}
           />
         </Form.Item>
 
-        <Form.Item label="Tags">
+        <Form.Item label="Tags" required validateStatus={errors.tags ? 'error' : ''} help={errors.tags?.message}>
           <Controller
             name="tags"
             control={control}
+            rules={{ validate: (value) => (value && value.length > 0) || 'Tags are required' }}
             render={({ field }) => (
               <Select
                 {...field}
                 mode="multiple"
-                placeholder="Select tags (optional)"
+                placeholder="Select tags"
                 allowClear
                 style={{ width: '100%' }}
                 value={field.value || []}
@@ -443,10 +521,16 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
           />
         </Form.Item>
 
-        <Form.Item label="Product Image">
+        <Form.Item
+          label="Product Image"
+          required
+          validateStatus={errors.image ? 'error' : ''}
+          help={errors.image?.message}
+        >
           <Controller
             name="image"
             control={control}
+            rules={{ validate: () => imageFile || imagePreview || 'Product image is required' }}
             render={({ field: _field }) => (
               <div>
                 <Upload
