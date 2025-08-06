@@ -39,6 +39,7 @@ export const ordersApi = {
           processing: number;
           shipped: number;
           delivered: number;
+          cancelled: number;
           total_revenue: string;
         };
       }>
