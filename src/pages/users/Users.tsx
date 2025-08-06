@@ -50,8 +50,7 @@ export const Users: React.FC = () => {
       const response = await usersApi.admin.getAllUsers({ page, per_page: perPage, role });
 
       setUsers(response.data.data);
-      setTotal(response.data.total);
-      setCurrentPage(response.data.current_page);
+      setTotal(response.data.total || 0);
     } catch (error) {
       console.error('Failed to fetch users:', error);
       message.error('Failed to load users');

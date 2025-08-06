@@ -530,7 +530,7 @@ export const ProductManageModal: React.FC<ProductManageModalProps> = ({
           <Controller
             name="image"
             control={control}
-            rules={{ validate: () => imageFile || imagePreview || 'Product image is required' }}
+            rules={{ validate: () => !!imageFile || !!imagePreview || 'Product image is required' }}
             render={({ field: _field }) => (
               <div>
                 <Upload

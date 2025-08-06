@@ -48,16 +48,11 @@ export const Products = () => {
     try {
       setLoading(true);
 
-      console.log(filters);
       const response = await productsApi.getAllProducts({ page, per_page: pageSize, ...filters });
 
       if (response.data) {
         setProducts(response.data.data);
-        setPagination({
-          current: response.data.current_page,
-          pageSize: response.data.per_page,
-          total: response.data.total,
-        });
+        setPagination((prev) => ({ ...prev, total: response.data.total || 0 }));
       }
     } catch (error) {
       console.error('Failed to fetch products:', error);
