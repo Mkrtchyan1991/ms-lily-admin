@@ -230,7 +230,11 @@ export const CommentsPage = () => {
             showQuickJumper: true,
             showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} comments`,
             onChange: (page, pageSize) => {
-              setPagination({ ...pagination, current: page, pageSize: pageSize || 10 });
+              setPagination({
+                ...pagination,
+                current: page,
+                pageSize: pageSize || 10,
+              });
             },
           }}
           scroll={{ x: 1200 }}
