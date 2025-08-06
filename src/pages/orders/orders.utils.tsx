@@ -175,6 +175,7 @@ export const createOrdersColumns = ({
   {
     title: 'Actions',
     key: 'actions',
+    fixed: 'right',
     width: 100,
     render: (_, record: Order) => (
       <Space size="small">
